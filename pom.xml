@@ -19,8 +19,10 @@
     <url>http://www.example.com</url>
     <!--Aquí se registran los microservicios-->
     <modules>
-        <module>microservice.gateway</module>
-        <module>microservice.eureka</module>
+        <module>microservice-config</module>
+        <module>microservice-eureka</module>
+        <module>microservice-gateway</module>
+        <module>microservice-product</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
