@@ -17,7 +17,10 @@
     <name>spring-microservices</name>
     <packaging>pom</packaging>
     <url>http://www.example.com</url>
-
+    <!--Aquí se registran los microservicios-->
+    <modules>
+        <module>microservice.gateway</module>
+    </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
