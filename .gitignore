@@ -1,0 +1,28 @@
+# Maven
+**/target/
+**/*.iml
+.mvn/
+.settings/
+.classpath
+.project
+
+# Logs
+**/*.log
+logs/
+
+# IntelliJ / VS Code
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+**/docker-compose.override.yml
+**/.env
+
+# Spring Boot
+**/application-local.yml
+**/application-dev.yml
+**/application-test.yml
