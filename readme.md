@@ -60,8 +60,48 @@ MENU_PRODUCTO (
   FOREIGN KEY (producto_id) REFERENCES PRODUCTO(id)
 );
 ```
-## Microservicios Pedidos
 
+### Estructura de carpetas
+```swift
+microservice-product/
+│
+├── src/main/java/com/microservice/product
+│   ├── ProductServiceApplication.java
+│
+│   ├── domain/                     <-- Modelos del dominio puro
+│   │   ├── model/
+│   │   │   ├── Product.java
+│   │   │   ├── Category.java
+│   │   │   ├── Menu.java
+│   │   │   └── MenuProduct.java
+│   │   └── repository/
+│   │       └── ProductRepository.java (interface del dominio)
+│
+│   ├── infrastructure/            <-- Implementaciones técnicas
+│   │   └── persistence/
+│   │       └── jpa/
+│   │           └── JpaProductRepository.java (implements ProductRepository)
+│
+│   ├── application/               <-- Casos de uso (servicios)
+│   │   └── ProductService.java
+│
+│   ├── web/                       <-- Controladores REST
+│   │   └── controller/
+│   │       └── ProductController.java
+│   │
+│   ├── dto/                       <-- DTOs para exponer datos al cliente
+│   │   └── ProductResponse.java
+│
+│   ├── mapper/                    <-- Mappers con MapStruct o manuales
+│   │   └── ProductMapper.java
+│
+│   └── config/                    <-- Swagger, Feign, CORS, Beans, etc.
+│       └── SwaggerConfig.java
+│
+└─── resources/
+
+    └── application.yml
+```
 ### Dependencias
 
 * Spring Web Web
