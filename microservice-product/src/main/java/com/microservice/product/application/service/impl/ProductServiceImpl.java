@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void delete(Long id) {
-        getById(id); // lanza excepción si no existe
+        getById(id);
         productRepository.deleteById(id);
     }
 }
