@@ -2,23 +2,33 @@ package com.microservice.order.application.service.impl;
 
 import com.microservice.order.application.service.OrderService;
 import com.microservice.order.domain.model.Order;
+import com.microservice.order.domain.model.OrderItem;
 import com.microservice.order.domain.model.OrderStatusHistory;
 import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
+import com.microservice.order.infrastructure.client.ProductClient;
+import com.microservice.order.web.dto.OrderDTO;
+import com.microservice.order.web.dto.ProductDTO;
+import com.microservice.order.web.mapper.OrderDtoMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
+    private final ProductClient productClient;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderStatusHistoryRepository statusHistoryRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            OrderStatusHistoryRepository statusHistoryRepository,
+                            ProductClient productClient) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
+        this.productClient = productClient;
     }
 
     @Override
@@ -27,30 +37,56 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con id: " + id));
+    public OrderDTO getFullOrder(Long id) {
+        Order order = getOrderById(id);
+
+        List<Long> productIds = order.getItems().stream()
+                .map(OrderItem::getProductId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, ProductDTO> productMap = productIds.stream()
+                .collect(Collectors.toMap(
+                        pid -> pid,
+                        pid -> productClient.getProductById(pid)
+                ));
+
+        return OrderDtoMapper.toDto(order, productMap);
     }
 
     @Override
     public Order create(Order order) {
         order.setCreatedAt(LocalDateTime.now());
+
+        order.getItems().forEach(item -> {
+            if (item.getProductId() != null) {
+                ProductDTO product = productClient.getProductById(item.getProductId());
+                if (!product.available()) {
+                    throw new RuntimeException("Producto no disponible: " + product.name());
+                }
+            }
+        });
+
         Order saved = orderRepository.save(order);
 
-        statusHistoryRepository.save(
-                OrderStatusHistory.builder()
-                        .orderId(saved.getId())
-                        .status(saved.getStatus())
-                        .changedAt(LocalDateTime.now())
-                        .build()
-        );
+        statusHistoryRepository.save(OrderStatusHistory.builder()
+                .orderId(saved.getId())
+                .status(saved.getStatus())
+                .changedAt(LocalDateTime.now())
+                .build());
 
         return saved;
     }
 
     @Override
     public void delete(Long id) {
-        getById(id);
+        getOrderById(id);
         orderRepository.deleteById(id);
+    }
+
+    private Order getOrderById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con id: " + id));
     }
 }

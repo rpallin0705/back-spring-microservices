@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,27 +27,20 @@ public class OrderController {
         this.statusHistoryRepository = statusHistoryRepository;
     }
 
-
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAll() {
-        return ResponseEntity.ok(
-                service.getAll().stream()
-                        .map(OrderDtoMapper::toDto)
-                        .collect(Collectors.toList())
-        );
+    public ResponseEntity<List<Order>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                OrderDtoMapper.toDto(service.getById(id))
-        );
+        return ResponseEntity.ok(service.getFullOrder(id));
     }
 
     @PostMapping
     public ResponseEntity<OrderDTO> create(@RequestBody OrderCreateDTO dto) {
         Order created = service.create(OrderDtoMapper.toDomain(dto));
-        return ResponseEntity.ok(OrderDtoMapper.toDto(created));
+        return ResponseEntity.ok(service.getFullOrder(created.getId()));
     }
 
     @DeleteMapping("/{id}")
@@ -55,13 +49,12 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/{id}/history")
     public ResponseEntity<List<OrderStatusHistoryDTO>> getHistory(@PathVariable Long id) {
-        List<OrderStatusHistoryDTO> history = statusHistoryRepository.findByOrderId(id).stream()
-                .map(OrderStatusHistoryDtoMapper::toDto)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(history);
+        return ResponseEntity.ok(
+                statusHistoryRepository.findByOrderId(id).stream()
+                        .map(OrderStatusHistoryDtoMapper::toDto)
+                        .collect(Collectors.toList())
+        );
     }
 }
