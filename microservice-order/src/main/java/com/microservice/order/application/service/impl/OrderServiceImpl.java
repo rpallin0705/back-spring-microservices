@@ -6,7 +6,9 @@ import com.microservice.order.domain.model.OrderItem;
 import com.microservice.order.domain.model.OrderStatusHistory;
 import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
+import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
+import com.microservice.order.web.dto.MenuDTO;
 import com.microservice.order.web.dto.OrderDTO;
 import com.microservice.order.web.dto.ProductDTO;
 import com.microservice.order.web.mapper.OrderDtoMapper;
@@ -22,13 +24,16 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ProductClient productClient;
+    private final MenuClient menuClient;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderStatusHistoryRepository statusHistoryRepository,
-                            ProductClient productClient) {
+                            ProductClient productClient,
+                            MenuClient menuClient) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productClient = productClient;
+        this.menuClient = menuClient;
     }
 
     @Override
@@ -40,19 +45,19 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO getFullOrder(Long id) {
         Order order = getOrderById(id);
 
-        List<Long> productIds = order.getItems().stream()
+        Map<Long, ProductDTO> productMap = order.getItems().stream()
                 .map(OrderItem::getProductId)
                 .filter(Objects::nonNull)
                 .distinct()
-                .toList();
+                .collect(Collectors.toMap(pid -> pid, productClient::getProductById));
 
-        Map<Long, ProductDTO> productMap = productIds.stream()
-                .collect(Collectors.toMap(
-                        pid -> pid,
-                        productClient::getProductById
-                ));
+        Map<Long, MenuDTO> menuMap = order.getItems().stream()
+                .map(OrderItem::getMenuId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        return OrderDtoMapper.toDto(order, productMap);
+        return OrderDtoMapper.toDto(order, productMap, menuMap);
     }
 
     @Override
@@ -63,15 +68,18 @@ public class OrderServiceImpl implements OrderService {
                             .map(OrderItem::getProductId)
                             .filter(Objects::nonNull)
                             .distinct()
-                            .collect(Collectors.toMap(
-                                    pid -> pid,
-                                    productClient::getProductById
-                            ));
-                    return OrderDtoMapper.toDto(order, productMap);
+                            .collect(Collectors.toMap(pid -> pid, productClient::getProductById));
+
+                    Map<Long, MenuDTO> menuMap = order.getItems().stream()
+                            .map(OrderItem::getMenuId)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
+
+                    return OrderDtoMapper.toDto(order, productMap, menuMap);
                 })
                 .toList();
     }
-
 
     @Override
     public Order create(Order order) {
@@ -87,9 +95,19 @@ public class OrderServiceImpl implements OrderService {
                     throw new RuntimeException("Producto no disponible: " + product.name());
                 }
 
-                double subtotal = product.price() * item.getQuantity();
                 item.setPrice(product.price());
-                total += subtotal;
+                total += product.price() * item.getQuantity();
+            }
+
+            if (item.getMenuId() != null) {
+                MenuDTO menu = menuClient.getMenuById(item.getMenuId());
+
+                if (!menu.active()) {
+                    throw new RuntimeException("Menú no disponible: " + menu.name());
+                }
+
+                item.setPrice(menu.totalPrice());
+                total += menu.totalPrice() * item.getQuantity();
             }
         }
 

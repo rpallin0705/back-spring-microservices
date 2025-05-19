@@ -5,5 +5,6 @@ public record OrderItemDTO(
         Long menuId,
         Integer quantity,
         Double price,
-        ProductDTO product
+        ProductDTO product,
+        MenuDTO menu
 ) {}

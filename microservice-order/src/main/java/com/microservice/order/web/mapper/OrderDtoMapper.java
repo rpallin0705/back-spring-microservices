@@ -3,10 +3,7 @@ package com.microservice.order.web.mapper;
 import com.microservice.order.domain.model.Order;
 import com.microservice.order.domain.model.OrderItem;
 import com.microservice.order.infrastructure.client.ProductClient;
-import com.microservice.order.web.dto.OrderCreateDTO;
-import com.microservice.order.web.dto.OrderDTO;
-import com.microservice.order.web.dto.OrderItemDTO;
-import com.microservice.order.web.dto.ProductDTO;
+import com.microservice.order.web.dto.*;
 
 import java.util.List;
 import java.util.Map;
@@ -14,18 +11,21 @@ import java.util.stream.Collectors;
 
 public class OrderDtoMapper {
 
-    public static OrderDTO toDto(Order order, Map<Long, ProductDTO> productMap) {
+    public static OrderDTO toDto(Order order, Map<Long, ProductDTO> productMap, Map<Long, MenuDTO> menuMap) {
         List<OrderItemDTO> itemDtos = order.getItems().stream()
                 .map(item -> {
                     ProductDTO product = productMap.get(item.getProductId());
+                    MenuDTO menu = menuMap.get(item.getMenuId());
                     return new OrderItemDTO(
                             item.getProductId(),
                             item.getMenuId(),
                             item.getQuantity(),
                             item.getPrice(),
-                            product
+                            product,
+                            menu
                     );
-                }).toList();
+                })
+                .toList();
 
         return new OrderDTO(
                 order.getId(),
@@ -38,14 +38,14 @@ public class OrderDtoMapper {
         );
     }
 
-
-    private static OrderItemDTO toDtoItem(OrderItem item, ProductDTO productDTO) {
+    private static OrderItemDTO toDtoItem(OrderItem item, ProductDTO productDTO, MenuDTO menuDTO) {
         return new OrderItemDTO(
                 item.getProductId(),
                 item.getMenuId(),
                 item.getQuantity(),
                 item.getPrice(),
-                productDTO
+                productDTO,
+                menuDTO
         );
     }
 
