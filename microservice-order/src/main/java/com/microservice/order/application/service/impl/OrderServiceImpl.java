@@ -49,25 +49,51 @@ public class OrderServiceImpl implements OrderService {
         Map<Long, ProductDTO> productMap = productIds.stream()
                 .collect(Collectors.toMap(
                         pid -> pid,
-                        pid -> productClient.getProductById(pid)
+                        productClient::getProductById
                 ));
 
         return OrderDtoMapper.toDto(order, productMap);
     }
 
     @Override
+    public List<OrderDTO> getAllFullOrders() {
+        return orderRepository.findAll().stream()
+                .map(order -> {
+                    Map<Long, ProductDTO> productMap = order.getItems().stream()
+                            .map(OrderItem::getProductId)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toMap(
+                                    pid -> pid,
+                                    productClient::getProductById
+                            ));
+                    return OrderDtoMapper.toDto(order, productMap);
+                })
+                .toList();
+    }
+
+
+    @Override
     public Order create(Order order) {
         order.setCreatedAt(LocalDateTime.now());
 
-        order.getItems().forEach(item -> {
+        double total = 0.0;
+
+        for (OrderItem item : order.getItems()) {
             if (item.getProductId() != null) {
                 ProductDTO product = productClient.getProductById(item.getProductId());
+
                 if (!product.available()) {
                     throw new RuntimeException("Producto no disponible: " + product.name());
                 }
-            }
-        });
 
+                double subtotal = product.price() * item.getQuantity();
+                item.setPrice(product.price());
+                total += subtotal;
+            }
+        }
+
+        order.setTotalPrice(total);
         Order saved = orderRepository.save(order);
 
         statusHistoryRepository.save(OrderStatusHistory.builder()

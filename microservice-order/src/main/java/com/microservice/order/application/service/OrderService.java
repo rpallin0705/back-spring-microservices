@@ -6,8 +6,9 @@ import com.microservice.order.web.dto.OrderDTO;
 import java.util.List;
 
 public interface OrderService {
-    List<Order> getAll();              // útil para procesos internos
-    OrderDTO getFullOrder(Long id);    // útil para exponer al cliente
+    List<Order> getAll();
+    List<OrderDTO> getAllFullOrders();
+    OrderDTO getFullOrder(Long id);
     Order create(Order order);
     void delete(Long id);
 }

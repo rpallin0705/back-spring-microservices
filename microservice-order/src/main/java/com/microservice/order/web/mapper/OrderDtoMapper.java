@@ -54,13 +54,11 @@ public class OrderDtoMapper {
                 .userId(dto.userId())
                 .addressId(dto.addressId())
                 .status(dto.status())
-                .totalPrice(dto.totalPrice())
                 .items(dto.items().stream()
                         .map(i -> OrderItem.builder()
                                 .productId(i.productId())
                                 .menuId(i.menuId())
                                 .quantity(i.quantity())
-                                .price(i.price())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

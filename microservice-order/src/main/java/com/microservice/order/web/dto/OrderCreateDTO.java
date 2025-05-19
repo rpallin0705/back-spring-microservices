@@ -6,6 +6,5 @@ public record OrderCreateDTO(
         Long userId,
         Long addressId,
         String status,
-        Double totalPrice,
         List<OrderItemDTO> items
 ) {}
