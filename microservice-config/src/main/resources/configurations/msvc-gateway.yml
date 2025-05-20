@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: msvc-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: products
+          uri: lb://msvc-product
+          predicates:
+            - Path=/api/products/**
+        - id: menus
+          uri: lb://msvc-product
+          predicates:
+            - Path=/api/menus/**
+        - id: categories
+          uri: lb://msvc-product
+          predicates:
+            - Path=/api/categories/**
+        - id: orders
+          uri: lb://msvc-order
+          predicates:
+            - Path=/api/orders/**
+eureka:
+  client:
+    register-with-eureka: false
