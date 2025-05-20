@@ -1,40 +1,5 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: msvc-gateway
-
   config:
     import: optional:configserver:http://localhost:8888
-
-  cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-      routes:
-        - id: products
-          uri: lb://msvc-product
-          predicates:
-            - Path=/api/products/**
-        - id: orders
-          uri: lb://msvc-order
-          predicates:
-            - Path=/api/orders/**
-        - id: menus
-          uri: lb://msvc-product
-          predicates:
-            - Path=/api/menus/**
-        - id: categories
-          uri: lb://msvc-product
-          predicates:
-            - Path=/api/categories/**
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-  instance:
-    prefer-ip-address: true
