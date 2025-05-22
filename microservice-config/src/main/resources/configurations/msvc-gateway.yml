@@ -28,6 +28,14 @@ spring:
           uri: lb://msvc-order
           predicates:
             - Path=/api/orders/**
+        - id: users
+          uri: lb://msvc-user
+          predicates:
+            - Path=/api/users/**
+        - id: address
+          uri: lb://msvc-user
+          predicates:
+            - Path=/api/addresses/**
 eureka:
   client:
     register-with-eureka: false
