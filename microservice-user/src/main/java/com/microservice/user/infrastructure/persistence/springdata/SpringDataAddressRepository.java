@@ -1,4 +1,3 @@
-// SpringDataAddressRepository.java
 package com.microservice.user.infrastructure.persistence.springdata;
 
 import com.microservice.user.infrastructure.persistence.entity.AddressEntity;

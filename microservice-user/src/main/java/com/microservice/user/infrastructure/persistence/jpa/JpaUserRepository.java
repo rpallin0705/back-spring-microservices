@@ -1,4 +1,3 @@
-// JpaUserRepository.java
 package com.microservice.user.infrastructure.persistence.jpa;
 
 import com.microservice.user.domain.model.User;

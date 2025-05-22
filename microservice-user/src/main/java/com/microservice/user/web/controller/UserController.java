@@ -4,6 +4,8 @@ import com.microservice.user.application.service.UserService;
 import com.microservice.user.domain.model.User;
 import com.microservice.user.web.dto.UserCreateDTO;
 import com.microservice.user.web.dto.UserDTO;
+import com.microservice.user.web.dto.UserDetailsDTO;
+import com.microservice.user.web.mapper.UserDetailsDtoMapper;
 import com.microservice.user.web.mapper.UserDtoMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,16 @@ public class UserController {
         return userService.getById(id)
                 .map(user -> ResponseEntity.ok(UserDtoMapper.toDto(user)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{userId}/details/{addressId}")
+    public ResponseEntity<UserDetailsDTO> getUserDetailsForOrder(
+            @PathVariable Long userId,
+            @PathVariable Long addressId) {
+
+        return userService.getById(userId)
+                .map(user -> ResponseEntity.ok(UserDetailsDtoMapper.toDto(user, addressId)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping

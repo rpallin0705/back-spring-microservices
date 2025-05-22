@@ -9,10 +9,7 @@ import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
 import com.microservice.order.infrastructure.client.UserClient;
-import com.microservice.order.web.dto.MenuDTO;
-import com.microservice.order.web.dto.OrderDTO;
-import com.microservice.order.web.dto.ProductDTO;
-import com.microservice.order.web.dto.UserDTO;
+import com.microservice.order.web.dto.*;
 import com.microservice.order.web.mapper.OrderDtoMapper;
 import org.springframework.stereotype.Service;
 
@@ -64,9 +61,9 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        UserDTO user = userClient.getUserById(order.getUserId());
+        UserDetailsDTO userDetails = userClient.getUserDetailsForOrder(order.getUserId(), order.getAddressId());
 
-        return OrderDtoMapper.toDto(order, productMap, menuMap, user);
+        return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
     }
 
     @Override
@@ -85,9 +82,9 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    UserDTO user = userClient.getUserById(order.getUserId());
+                    UserDetailsDTO userDetails = userClient.getUserDetailsForOrder(order.getUserId(), order.getAddressId());
 
-                    return OrderDtoMapper.toDto(order, productMap, menuMap, user);
+                    return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
                 })
                 .toList();
     }

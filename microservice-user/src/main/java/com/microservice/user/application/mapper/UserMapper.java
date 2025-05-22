@@ -38,7 +38,6 @@ public class UserMapper {
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
 
-        // Relación inversa: seteamos user dentro de cada address también
         if (domain.getAddresses() != null) {
             entity.setAddresses(
                     domain.getAddresses().stream()

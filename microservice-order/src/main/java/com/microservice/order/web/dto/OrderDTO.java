@@ -10,6 +10,6 @@ public record OrderDTO(
         String status,
         Double totalPrice,
         LocalDateTime createdAt,
-        UserDTO user,
+        UserDetailsDTO user,
         List<OrderItemDTO> items
 ) {}
