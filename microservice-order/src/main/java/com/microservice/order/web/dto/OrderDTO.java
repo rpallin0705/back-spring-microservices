@@ -5,10 +5,11 @@ import java.util.List;
 
 public record OrderDTO(
         Long id,
-        Long userId,
         Long addressId,
-        LocalDateTime createdAt,
+        Long userId,
         String status,
         Double totalPrice,
+        LocalDateTime createdAt,
+        UserDTO user,
         List<OrderItemDTO> items
 ) {}

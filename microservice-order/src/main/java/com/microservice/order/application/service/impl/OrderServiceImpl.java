@@ -8,9 +8,11 @@ import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
+import com.microservice.order.infrastructure.client.UserClient;
 import com.microservice.order.web.dto.MenuDTO;
 import com.microservice.order.web.dto.OrderDTO;
 import com.microservice.order.web.dto.ProductDTO;
+import com.microservice.order.web.dto.UserDTO;
 import com.microservice.order.web.mapper.OrderDtoMapper;
 import org.springframework.stereotype.Service;
 
@@ -25,15 +27,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ProductClient productClient;
     private final MenuClient menuClient;
+    private final UserClient userClient;
 
-    public OrderServiceImpl(OrderRepository orderRepository,
-                            OrderStatusHistoryRepository statusHistoryRepository,
-                            ProductClient productClient,
-                            MenuClient menuClient) {
+    public OrderServiceImpl(
+            OrderRepository orderRepository,
+            OrderStatusHistoryRepository statusHistoryRepository,
+            ProductClient productClient,
+            MenuClient menuClient,
+            UserClient userClient // <-- nuevo
+    ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productClient = productClient;
         this.menuClient = menuClient;
+        this.userClient = userClient;
     }
 
     @Override
@@ -57,7 +64,9 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        return OrderDtoMapper.toDto(order, productMap, menuMap);
+        UserDTO user = userClient.getUserById(order.getUserId());
+
+        return OrderDtoMapper.toDto(order, productMap, menuMap, user);
     }
 
     @Override
@@ -76,7 +85,9 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    return OrderDtoMapper.toDto(order, productMap, menuMap);
+                    UserDTO user = userClient.getUserById(order.getUserId());
+
+                    return OrderDtoMapper.toDto(order, productMap, menuMap, user);
                 })
                 .toList();
     }

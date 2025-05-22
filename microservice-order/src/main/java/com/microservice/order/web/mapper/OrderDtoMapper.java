@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class OrderDtoMapper {
 
-    public static OrderDTO toDto(Order order, Map<Long, ProductDTO> productMap, Map<Long, MenuDTO> menuMap) {
+    public static OrderDTO toDto(Order order, Map<Long, ProductDTO> productMap, Map<Long, MenuDTO> menuMap, UserDTO user) {
         List<OrderItemDTO> itemDtos = order.getItems().stream()
                 .map(item -> {
                     ProductDTO product = productMap.get(item.getProductId());
@@ -29,11 +29,12 @@ public class OrderDtoMapper {
 
         return new OrderDTO(
                 order.getId(),
-                order.getUserId(),
                 order.getAddressId(),
-                order.getCreatedAt(),
+                order.getUserId(),
                 order.getStatus(),
                 order.getTotalPrice(),
+                order.getCreatedAt(),
+                user,
                 itemDtos
         );
     }
