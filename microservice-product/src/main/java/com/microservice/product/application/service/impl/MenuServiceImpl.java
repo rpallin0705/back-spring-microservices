@@ -47,7 +47,7 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public void delete(Long id) {
-        getById(id); // asegura existencia
+        getById(id);
         menuRepository.deleteById(id);
     }
 }

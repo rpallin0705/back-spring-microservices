@@ -1,5 +1,6 @@
 package com.microservice.order.infrastructure.persistence.entity;
 
+import com.microservice.order.domain.model.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "order_table") // usamos otro nombre porque "order" es palabra reservada
+@Table(name = "order_table")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,7 +26,8 @@ public class OrderEntity {
 
     private LocalDateTime createdAt;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     private Double totalPrice;
 

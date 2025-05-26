@@ -1,5 +1,6 @@
 package com.microservice.order.infrastructure.persistence.entity;
 
+import com.microservice.order.domain.model.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,8 @@ public class OrderStatusHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     private LocalDateTime changedAt;
 

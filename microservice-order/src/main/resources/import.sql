@@ -1,8 +1,8 @@
 -- Pedidos
-INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (1, 101, 201, '2025-05-14 12:00:00', 'CREATED', 10.97);
-INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (2, 102, 202, '2025-05-14 13:00:00', 'IN_PREPARATION', 8.98);
-INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (3, 103, 203, '2025-05-14 14:00:00', 'CREATED', 10.47); -- pedido solo con menú
-INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (4, 104, 204, '2025-05-14 15:00:00', 'CREATED', 16.46); -- pedido mixto
+INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (1, 1, 1, '2025-05-14 12:00:00', 'CREATED', 10.97);
+INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (2, 2, 2, '2025-05-14 13:00:00', 'IN_PREPARATION', 8.98);
+INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (3, 3, 3, '2025-05-14 14:00:00', 'CREATED', 10.47); -- pedido solo con menú
+INSERT INTO order_table (id, user_id, address_id, created_at, status, total_price) VALUES (4, 4, 4, '2025-05-14 15:00:00', 'CREATED', 16.46); -- pedido mixto
 
 -- Ítems del pedido
 INSERT INTO order_item (id, order_id, product_id, menu_id, quantity, price) VALUES (1, 1, 1, NULL, 1, 5.99);

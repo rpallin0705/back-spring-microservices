@@ -13,7 +13,7 @@ public class Order {
     private Long userId;
     private Long addressId;
     private LocalDateTime createdAt;
-    private String status;
+    private OrderStatus status;
     private Double totalPrice;
     private List<OrderItem> items;
 }

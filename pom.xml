@@ -24,6 +24,7 @@
         <module>microservice-gateway</module>
         <module>microservice-product</module>
         <module>microservice-order</module>
+        <module>microservice-user</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
