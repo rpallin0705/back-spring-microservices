@@ -10,6 +10,6 @@ import java.time.LocalDateTime;
 public class OrderStatusHistory {
     private Long id;
     private Long orderId;
-    private String status;
+    private OrderStatus status;
     private LocalDateTime changedAt;
 }

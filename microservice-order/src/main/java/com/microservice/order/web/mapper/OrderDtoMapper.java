@@ -2,6 +2,7 @@ package com.microservice.order.web.mapper;
 
 import com.microservice.order.domain.model.Order;
 import com.microservice.order.domain.model.OrderItem;
+import com.microservice.order.domain.model.OrderStatus;
 import com.microservice.order.web.dto.*;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class OrderDtoMapper {
         return Order.builder()
                 .userId(dto.userId())
                 .addressId(dto.addressId())
-                .status(dto.status())
+                .status(OrderStatus.valueOf(dto.status()))
                 .items(dto.items().stream()
                         .map(i -> OrderItem.builder()
                                 .productId(i.productId())
