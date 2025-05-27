@@ -3,6 +3,7 @@ package com.microservice.order.application.service.impl;
 import com.microservice.order.application.service.OrderService;
 import com.microservice.order.domain.model.Order;
 import com.microservice.order.domain.model.OrderItem;
+import com.microservice.order.domain.model.OrderStatus;
 import com.microservice.order.domain.model.OrderStatusHistory;
 import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
@@ -10,6 +11,7 @@ import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
 import com.microservice.order.infrastructure.client.UserClient;
 import com.microservice.order.web.dto.*;
+import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
 import org.springframework.stereotype.Service;
 
@@ -140,5 +142,27 @@ public class OrderServiceImpl implements OrderService {
     private Order getOrderById(Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado con id: " + id));
+    }
+
+    @Override
+    public List<KitchenOrderDTO> getOrdersForKitchen() {
+        return orderRepository.findAll().stream()
+                .filter(order -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING)
+                .map(order -> {
+                    Map<Long, ProductDTO> productMap = order.getItems().stream()
+                            .map(OrderItem::getProductId)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toMap(pid -> pid, productClient::getProductById));
+
+                    Map<Long, MenuDTO> menuMap = order.getItems().stream()
+                            .map(OrderItem::getMenuId)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
+
+                    return KitchenOrderMapper.toDto(order, productMap, menuMap);
+                })
+                .toList();
     }
 }

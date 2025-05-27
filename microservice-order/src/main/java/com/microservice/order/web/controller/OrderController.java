@@ -3,6 +3,7 @@ package com.microservice.order.web.controller;
 import com.microservice.order.application.service.OrderService;
 import com.microservice.order.domain.model.Order;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
+import com.microservice.order.web.dto.KitchenOrderDTO;
 import com.microservice.order.web.dto.OrderCreateDTO;
 import com.microservice.order.web.dto.OrderDTO;
 import com.microservice.order.web.dto.OrderStatusHistoryDTO;
@@ -56,5 +57,15 @@ public class OrderController {
                         .map(OrderStatusHistoryDtoMapper::toDto)
                         .collect(Collectors.toList())
         );
+    }
+
+    // ===========================================
+    // ENDPOINT para servicio cocina
+    // ===========================================
+
+    @GetMapping("/kitchen")
+    public ResponseEntity<List<KitchenOrderDTO>> getKitchenOrders() {
+        List<KitchenOrderDTO> result = service.getOrdersForKitchen();
+        return ResponseEntity.ok(result);
     }
 }
