@@ -1,5 +1,6 @@
 package com.microservice.order.application.service.impl;
 
+import com.microservice.order.application.mapper.OrderStatusHistoryMapper;
 import com.microservice.order.application.service.OrderService;
 import com.microservice.order.domain.model.Order;
 import com.microservice.order.domain.model.OrderItem;
@@ -145,6 +146,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<OrderStatusHistory> getStatusHistory(Long orderId) {
+        getOrderById(orderId); // asegura que existe y lanza si no
+        return statusHistoryRepository.findByOrderId(orderId);
+    }
+
+    ///
+    /// SERVICIO KITCHEN
+    ///
+
+    @Override
     public List<KitchenOrderDTO> getOrdersForKitchen() {
         return orderRepository.findAll().stream()
                 .filter(order -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING)
@@ -164,5 +175,24 @@ public class OrderServiceImpl implements OrderService {
                     return KitchenOrderMapper.toDto(order, productMap, menuMap);
                 })
                 .toList();
+    }
+
+    @Override
+    public void updateStatus(Long orderId, OrderStatus newStatus) {
+        Order order = getOrderById(orderId);
+        OrderStatus current = order.getStatus(); // Ya es enum
+
+        if (!current.canTransitionTo(newStatus)) {
+            throw new IllegalArgumentException("Transición inválida de " + current + " a " + newStatus);
+        }
+
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+
+        statusHistoryRepository.save(OrderStatusHistory.builder()
+                .orderId(order.getId())
+                .status(newStatus) // Enum directamente
+                .changedAt(LocalDateTime.now())
+                .build());
     }
 }
