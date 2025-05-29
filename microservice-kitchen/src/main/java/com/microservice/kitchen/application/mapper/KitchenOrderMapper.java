@@ -2,6 +2,7 @@ package com.microservice.kitchen.application.mapper;
 
 import com.microservice.kitchen.domain.model.KitchenItem;
 import com.microservice.kitchen.domain.model.KitchenOrder;
+import com.microservice.kitchen.domain.model.OrderStatus;
 import com.microservice.kitchen.web.dto.KitchenItemDTO;
 import com.microservice.kitchen.web.dto.KitchenOrderDTO;
 
@@ -34,5 +35,12 @@ public class KitchenOrderMapper {
                 domain.getCreatedAt(),
                 items
         );
+    }
+
+    public static KitchenOrder fromStatusUpdate(Long orderId, OrderStatus status) {
+        KitchenOrder order = new KitchenOrder();
+        order.setId(orderId);
+        order.setStatus(status);
+        return order;
     }
 }

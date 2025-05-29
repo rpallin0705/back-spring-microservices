@@ -40,6 +40,16 @@ spring:
           uri: lb://msvc-kitchen
           predicates:
             - Path=/api/kitchen/**
+        - id: kitchen-ws
+          uri: lb://msvc-kitchen
+          predicates:
+            - Path=/ws-kitchen/**
+          filters:
+            - name: RewritePath
+              args:
+                regexp: "/ws-kitchen/(?<segment>.*)"
+                replacement: "/${segment}"
+
 eureka:
   client:
     register-with-eureka: false
