@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 public class OrderMapper {
 
     public static Order toDomain(OrderEntity entity) {
-        if (entity == null) return null;
-
         return Order.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
@@ -20,13 +18,12 @@ public class OrderMapper {
                 .createdAt(entity.getCreatedAt())
                 .status(entity.getStatus())
                 .totalPrice(entity.getTotalPrice())
+                .estimatedPreparationTime(entity.getEstimatedPreparationTime())
                 .items(toDomainList(entity.getItems()))
                 .build();
     }
 
     public static OrderEntity toEntity(Order domain) {
-        if (domain == null) return null;
-
         OrderEntity entity = OrderEntity.builder()
                 .id(domain.getId())
                 .userId(domain.getUserId())
@@ -34,6 +31,7 @@ public class OrderMapper {
                 .createdAt(domain.getCreatedAt())
                 .status(domain.getStatus())
                 .totalPrice(domain.getTotalPrice())
+                .estimatedPreparationTime(domain.getEstimatedPreparationTime())
                 .build();
 
         if (domain.getItems() != null) {

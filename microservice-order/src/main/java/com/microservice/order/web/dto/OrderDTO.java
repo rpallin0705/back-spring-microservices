@@ -12,6 +12,7 @@ public record OrderDTO(
         OrderStatus status,
         Double totalPrice,
         LocalDateTime createdAt,
+        Integer estimatedPreparationTime,
         UserDetailsDTO user,
         List<OrderItemDTO> items
 ) {}

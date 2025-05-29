@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
             OrderStatusHistoryRepository statusHistoryRepository,
             ProductClient productClient,
             MenuClient menuClient,
-            UserClient userClient // <-- nuevo
+            UserClient userClient
     ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
@@ -123,6 +124,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setTotalPrice(total);
+
+        int estimatedTime = calculateEstimatedPreparationTime(order.getItems(), order.getAddressId());
+        order.setEstimatedPreparationTime(estimatedTime);
+
         Order saved = orderRepository.save(order);
 
         statusHistoryRepository.save(OrderStatusHistory.builder()
@@ -132,6 +137,17 @@ public class OrderServiceImpl implements OrderService {
                 .build());
 
         return saved;
+    }
+
+    private int calculateEstimatedPreparationTime(List<OrderItem> items, Long addressId) {
+        int basePerItem = ThreadLocalRandom.current().nextInt(4, 9);
+        int productTime = items.size() * basePerItem;
+
+        int deliveryExtra = (addressId != null)
+                ? ThreadLocalRandom.current().nextInt(5, 11)
+                : 0;
+
+        return productTime + deliveryExtra;
     }
 
     @Override
@@ -147,13 +163,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderStatusHistory> getStatusHistory(Long orderId) {
-        getOrderById(orderId); // asegura que existe y lanza si no
+        getOrderById(orderId);
         return statusHistoryRepository.findByOrderId(orderId);
     }
-
-    ///
-    /// SERVICIO KITCHEN
-    ///
 
     @Override
     public List<KitchenOrderDTO> getOrdersForKitchen() {
@@ -180,7 +192,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateStatus(Long orderId, OrderStatus newStatus) {
         Order order = getOrderById(orderId);
-        OrderStatus current = order.getStatus(); // Ya es enum
+        OrderStatus current = order.getStatus();
 
         if (!current.canTransitionTo(newStatus)) {
             throw new IllegalArgumentException("Transición inválida de " + current + " a " + newStatus);
@@ -191,7 +203,7 @@ public class OrderServiceImpl implements OrderService {
 
         statusHistoryRepository.save(OrderStatusHistory.builder()
                 .orderId(order.getId())
-                .status(newStatus) // Enum directamente
+                .status(newStatus)
                 .changedAt(LocalDateTime.now())
                 .build());
     }

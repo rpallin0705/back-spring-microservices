@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class OrderDtoMapper {
 
     public static OrderDTO toDto(Order order, Map<Long, ProductDTO> productMap, Map<Long, MenuDTO> menuMap, UserDetailsDTO userDetails) {
-        List<OrderItemDTO> itemDtos = order.getItems().stream()
+        List<OrderItemDTO> itemsDto = order.getItems().stream()
                 .map(item -> {
                     ProductDTO product = productMap.get(item.getProductId());
                     MenuDTO menu = menuMap.get(item.getMenuId());
@@ -34,8 +34,9 @@ public class OrderDtoMapper {
                 order.getStatus(),
                 order.getTotalPrice(),
                 order.getCreatedAt(),
+                order.getEstimatedPreparationTime(),
                 userDetails,
-                itemDtos
+                itemsDto
         );
     }
 
