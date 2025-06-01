@@ -12,9 +12,8 @@ import java.util.List;
 public class User {
     private Long id;
     private String name;
-    private String email;
+    private String authEmail;
     private String phone;
-    private UserRole role;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

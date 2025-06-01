@@ -1,7 +1,5 @@
 package com.microservice.user.application.service.impl;
 
-import com.microservice.user.application.mapper.AddressMapper;
-import com.microservice.user.application.mapper.UserMapper;
 import com.microservice.user.application.service.UserService;
 import com.microservice.user.domain.model.User;
 import com.microservice.user.domain.repository.UserRepository;
@@ -31,8 +29,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<User> getByAuthEmail(String email) {
+        return userRepository.findByAuthEmail(email);
     }
 
     @Override
@@ -48,9 +46,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         existing.setName(user.getName());
-        existing.setEmail(user.getEmail());
         existing.setPhone(user.getPhone());
-        existing.setRole(user.getRole());
         existing.setUpdatedAt(LocalDateTime.now());
 
         return userRepository.save(existing);

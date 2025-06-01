@@ -28,4 +28,4 @@ eureka:
 
 jwt:
   secret: ${JWT_SECRET:default-secret-change-this}
-  expiration: 3600000 # 1 hora en ms
+  expiration: 3600000 # 1 hora

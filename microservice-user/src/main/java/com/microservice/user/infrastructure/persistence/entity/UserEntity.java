@@ -1,6 +1,5 @@
 package com.microservice.user.infrastructure.persistence.entity;
 
-import com.microservice.user.domain.model.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,11 +19,10 @@ public class UserEntity {
     private Long id;
 
     private String name;
-    private String email;
-    private String phone;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private String authEmail;
+
+    private String phone;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
