@@ -7,11 +7,12 @@ INSERT INTO category (id, name) VALUES (5,'Donburi');
 INSERT INTO category (id, name) VALUES (6,'Yakitori');
 INSERT INTO category (id, name) VALUES (7,'Udon');
 INSERT INTO category (id, name) VALUES (8,'Postres Japoneses');
-INSERT INTO category (id, name) VALUES (9, 'Carnes Japonesas');
-INSERT INTO category (id, name) VALUES (10, 'Pescado Japonés');
-INSERT INTO category (id, name) VALUES (11, 'Mariscos Japoneses');
+INSERT INTO category (id, name) VALUES (9, 'Carnes');
+INSERT INTO category (id, name) VALUES (10, 'Pescado');
+INSERT INTO category (id, name) VALUES (11, 'Mariscos');
 INSERT INTO category (id, name) VALUES (12, 'Vinos');
 INSERT INTO category (id, name) VALUES (13, 'Refrescos');
+INSERT INTO category (id, name) VALUES (14, 'Menús');
 
 -- PRODUCTOS
 
