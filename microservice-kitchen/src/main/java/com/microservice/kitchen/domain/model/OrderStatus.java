@@ -1,4 +1,4 @@
-package com.microservice.order.domain.model;
+package com.microservice.kitchen.domain.model;
 
 public enum OrderStatus {
     CREATED,

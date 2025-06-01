@@ -16,4 +16,6 @@ public class Order {
     private OrderStatus status;
     private Double totalPrice;
     private List<OrderItem> items;
+
+    private Integer estimatedPreparationTime;
 }

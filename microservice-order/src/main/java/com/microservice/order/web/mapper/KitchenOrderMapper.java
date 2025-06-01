@@ -1,7 +1,6 @@
 package com.microservice.order.web.mapper;
 
 import com.microservice.order.domain.model.Order;
-import com.microservice.order.domain.model.OrderItem;
 import com.microservice.order.web.dto.KitchenOrderDTO;
 import com.microservice.order.web.dto.KitchenOrderItemDTO;
 import com.microservice.order.web.dto.MenuDTO;

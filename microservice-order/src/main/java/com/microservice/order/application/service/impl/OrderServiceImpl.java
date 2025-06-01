@@ -1,8 +1,10 @@
 package com.microservice.order.application.service.impl;
 
+import com.microservice.order.application.mapper.OrderStatusHistoryMapper;
 import com.microservice.order.application.service.OrderService;
 import com.microservice.order.domain.model.Order;
 import com.microservice.order.domain.model.OrderItem;
+import com.microservice.order.domain.model.OrderStatus;
 import com.microservice.order.domain.model.OrderStatusHistory;
 import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
@@ -10,11 +12,13 @@ import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
 import com.microservice.order.infrastructure.client.UserClient;
 import com.microservice.order.web.dto.*;
+import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
             OrderStatusHistoryRepository statusHistoryRepository,
             ProductClient productClient,
             MenuClient menuClient,
-            UserClient userClient // <-- nuevo
+            UserClient userClient
     ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
@@ -120,6 +124,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setTotalPrice(total);
+
+        int estimatedTime = calculateEstimatedPreparationTime(order.getItems(), order.getAddressId());
+        order.setEstimatedPreparationTime(estimatedTime);
+
         Order saved = orderRepository.save(order);
 
         statusHistoryRepository.save(OrderStatusHistory.builder()
@@ -131,6 +139,17 @@ public class OrderServiceImpl implements OrderService {
         return saved;
     }
 
+    private int calculateEstimatedPreparationTime(List<OrderItem> items, Long addressId) {
+        int basePerItem = ThreadLocalRandom.current().nextInt(4, 9);
+        int productTime = items.size() * basePerItem;
+
+        int deliveryExtra = (addressId != null)
+                ? ThreadLocalRandom.current().nextInt(5, 11)
+                : 0;
+
+        return productTime + deliveryExtra;
+    }
+
     @Override
     public void delete(Long id) {
         getOrderById(id);
@@ -140,5 +159,52 @@ public class OrderServiceImpl implements OrderService {
     private Order getOrderById(Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado con id: " + id));
+    }
+
+    @Override
+    public List<OrderStatusHistory> getStatusHistory(Long orderId) {
+        getOrderById(orderId);
+        return statusHistoryRepository.findByOrderId(orderId);
+    }
+
+    @Override
+    public List<KitchenOrderDTO> getOrdersForKitchen() {
+        return orderRepository.findAll().stream()
+                .filter(order -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING)
+                .map(order -> {
+                    Map<Long, ProductDTO> productMap = order.getItems().stream()
+                            .map(OrderItem::getProductId)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toMap(pid -> pid, productClient::getProductById));
+
+                    Map<Long, MenuDTO> menuMap = order.getItems().stream()
+                            .map(OrderItem::getMenuId)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
+
+                    return KitchenOrderMapper.toDto(order, productMap, menuMap);
+                })
+                .toList();
+    }
+
+    @Override
+    public void updateStatus(Long orderId, OrderStatus newStatus) {
+        Order order = getOrderById(orderId);
+        OrderStatus current = order.getStatus();
+
+        if (!current.canTransitionTo(newStatus)) {
+            throw new IllegalArgumentException("Transición inválida de " + current + " a " + newStatus);
+        }
+
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+
+        statusHistoryRepository.save(OrderStatusHistory.builder()
+                .orderId(order.getId())
+                .status(newStatus)
+                .changedAt(LocalDateTime.now())
+                .build());
     }
 }

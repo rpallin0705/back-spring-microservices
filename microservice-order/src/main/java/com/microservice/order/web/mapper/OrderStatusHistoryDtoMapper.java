@@ -11,4 +11,12 @@ public class OrderStatusHistoryDtoMapper {
                 history.getChangedAt()
         );
     }
+
+    public static OrderStatusHistory toDomain(OrderStatusHistoryDTO dto, Long orderId) {
+        return OrderStatusHistory.builder()
+                .orderId(orderId)
+                .status(dto.status())
+                .changedAt(dto.changedAt())
+                .build();
+    }
 }
