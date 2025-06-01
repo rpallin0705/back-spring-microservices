@@ -18,6 +18,7 @@ public class KitchenOrderDtoMapper {
                 order.getId(),
                 order.getStatus(),
                 order.getCreatedAt(),
+                order.getDeviceId(),
                 items
         );
     }

@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class KitchenOrder {
     private Long id;
+    private String deviceId;
     private OrderStatus status;
     private LocalDateTime createdAt;
     private List<KitchenItem> items;
