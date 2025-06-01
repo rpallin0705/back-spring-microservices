@@ -31,6 +31,7 @@ public class OrderDtoMapper {
                 order.getId(),
                 order.getAddressId(),
                 order.getUserId(),
+                order.getDeviceId(), // ← añadido
                 order.getStatus(),
                 order.getTotalPrice(),
                 order.getCreatedAt(),
@@ -47,6 +48,7 @@ public class OrderDtoMapper {
     public static Order toDomain(OrderCreateDTO dto) {
         return Order.builder()
                 .userId(dto.userId())
+                .deviceId(dto.deviceId()) // ← añadido
                 .addressId(dto.addressId())
                 .status(OrderStatus.valueOf(dto.status()))
                 .items(dto.items().stream()

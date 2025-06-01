@@ -9,6 +9,7 @@ public record OrderDTO(
         Long id,
         Long addressId,
         Long userId,
+        String deviceId,
         OrderStatus status,
         Double totalPrice,
         LocalDateTime createdAt,

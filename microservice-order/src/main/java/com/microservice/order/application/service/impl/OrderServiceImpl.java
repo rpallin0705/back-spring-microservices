@@ -11,6 +11,7 @@ import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
 import com.microservice.order.infrastructure.client.UserClient;
+import com.microservice.order.infrastructure.client.UserClientAdapter;
 import com.microservice.order.web.dto.*;
 import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
@@ -28,20 +29,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ProductClient productClient;
     private final MenuClient menuClient;
-    private final UserClient userClient;
+    private final UserClientAdapter userClientAdapter;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderStatusHistoryRepository statusHistoryRepository,
             ProductClient productClient,
             MenuClient menuClient,
-            UserClient userClient
+            UserClientAdapter userClientAdapter
     ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productClient = productClient;
         this.menuClient = menuClient;
-        this.userClient = userClient;
+        this.userClientAdapter = userClientAdapter;
     }
 
     @Override
@@ -65,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        UserDetailsDTO userDetails = userClient.getUserDetailsForOrder(order.getUserId(), order.getAddressId());
+        UserDetailsDTO userDetails = userClientAdapter.getUserDetailsIfPresent(order.getUserId(), order.getAddressId());
 
         return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
     }
@@ -86,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    UserDetailsDTO userDetails = userClient.getUserDetailsForOrder(order.getUserId(), order.getAddressId());
+                    UserDetailsDTO userDetails = userClientAdapter.getUserDetailsIfPresent(order.getUserId(), order.getAddressId());
 
                     return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
                 })
@@ -96,6 +97,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order create(Order order) {
         order.setCreatedAt(LocalDateTime.now());
+
+        if ((order.getUserId() == null && order.getDeviceId() == null) ||
+                (order.getUserId() != null && order.getDeviceId() != null)) {
+            throw new IllegalArgumentException("El pedido debe contener solo uno: userId o deviceId");
+        }
 
         double total = 0.0;
 
@@ -124,7 +130,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setTotalPrice(total);
-
         int estimatedTime = calculateEstimatedPreparationTime(order.getItems(), order.getAddressId());
         order.setEstimatedPreparationTime(estimatedTime);
 
@@ -138,6 +143,7 @@ public class OrderServiceImpl implements OrderService {
 
         return saved;
     }
+
 
     private int calculateEstimatedPreparationTime(List<OrderItem> items, Long addressId) {
         int basePerItem = ThreadLocalRandom.current().nextInt(4, 9);
