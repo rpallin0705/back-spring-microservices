@@ -6,7 +6,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role {
+public class Device {
     private Long id;
-    private String name;
+    private String deviceId;
+    private String secret;
 }

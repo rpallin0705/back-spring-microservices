@@ -17,10 +17,10 @@ public class UserMapper {
 
     public static UserEntity toEntity(User domain) {
         return UserEntity.builder()
-                .id(domain.id())
-                .email(domain.email())
-                .password(domain.password())
-                .roles(domain.roles().stream().map(RoleMapper::toEntity).collect(Collectors.toSet()))
+                .id(domain.getId())
+                .email(domain.getEmail())
+                .password(domain.getPassword())
+                .roles(domain.getRoles().stream().map(RoleMapper::toEntity).collect(Collectors.toSet()))
                 .build();
     }
 }

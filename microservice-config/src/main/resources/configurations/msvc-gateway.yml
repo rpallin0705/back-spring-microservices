@@ -49,6 +49,10 @@ spring:
               args:
                 regexp: "/ws-kitchen/(?<segment>.*)"
                 replacement: "/${segment}"
+        - id: auth
+          uri: lb://msvc-auth
+          predicates:
+            - Path=/api/auth/**
 
       globalcors:
         corsConfigurations:

@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
-        if (!passwordEncoder.matches(rawPassword, user.password())) {
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new RuntimeException("Credenciales inválidas");
         }
 
@@ -56,5 +56,10 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractUsername(token);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    @Override
+    public String generateTokenForDevice(String deviceId) {
+        return jwtUtil.generateTokenForDevice(deviceId);
     }
 }

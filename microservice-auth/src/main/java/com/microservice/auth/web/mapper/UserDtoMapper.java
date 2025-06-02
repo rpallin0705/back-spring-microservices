@@ -9,10 +9,10 @@ public class UserDtoMapper {
 
     public static UserDTO toDto(User user) {
         return new UserDTO(
-                user.id(),
-                user.email(),
-                user.roles().stream()
-                        .map(r -> r.name())
+                user.getId(),
+                user.getEmail(),
+                user.getRoles().stream()
+                        .map(r -> r.getName())
                         .collect(Collectors.toSet())
         );
     }

@@ -7,4 +7,5 @@ public interface AuthService {
     String login(String email, String rawPassword);
     boolean validateToken(String token);
     User getUserFromToken(String token);
+    String generateTokenForDevice(String deviceId);
 }

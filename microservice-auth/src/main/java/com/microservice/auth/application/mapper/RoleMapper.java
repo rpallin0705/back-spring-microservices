@@ -10,8 +10,8 @@ public class RoleMapper {
 
     public static RoleEntity toEntity(Role domain) {
         return RoleEntity.builder()
-                .id(domain.id())
-                .name(domain.name())
+                .id(domain.getId())
+                .name(domain.getName())
                 .build();
     }
 }

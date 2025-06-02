@@ -1,6 +1,8 @@
 package com.microservice.auth.web.controller;
 
 import com.microservice.auth.application.service.AuthService;
+import com.microservice.auth.application.service.DeviceService;
+import com.microservice.auth.domain.model.Device;
 import com.microservice.auth.domain.model.User;
 import com.microservice.auth.web.dto.*;
 import com.microservice.auth.web.mapper.UserDtoMapper;
@@ -15,9 +17,11 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     private final AuthService authService;
+    private final DeviceService deviceService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, DeviceService deviceService) {
         this.authService = authService;
+        this.deviceService = deviceService;
     }
 
     @PostMapping("/register")
@@ -25,9 +29,9 @@ public class AuthController {
         User user = authService.register(request.email(), request.password(), request.role());
 
         UserDTO dto = new UserDTO(
-                user.id(),
-                user.email(),
-                user.roles().stream().map(r -> r.name()).collect(Collectors.toSet())
+                user.getId(),
+                user.getEmail(),
+                user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet())
         );
 
         return ResponseEntity.ok(dto);
@@ -36,6 +40,19 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         String token = authService.login(request.email(), request.password());
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @PostMapping("/login/device")
+    public ResponseEntity<AuthResponse> loginDevice(@RequestBody DeviceLoginRequest request) {
+        Device device = deviceService.findByDeviceId(request.deviceId())
+                .orElseThrow(() -> new RuntimeException("Dispositivo no encontrado"));
+
+        if (!device.getSecret().equals(request.secret())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String token = authService.generateTokenForDevice(device.getDeviceId());
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
