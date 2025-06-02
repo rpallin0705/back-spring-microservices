@@ -1,4 +1,4 @@
-package com.microservice.kitchen.infrastructure.client;
+package com.microservice.kitchen.infrastructure.security;
 
 import com.microservice.kitchen.web.dto.KitchenOrderDTO;
 import com.microservice.kitchen.web.dto.OrderStatusHistoryDTO;

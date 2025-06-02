@@ -1,4 +1,4 @@
-package com.microservice.auth.security;
+package com.microservice.auth.infrastructure.security;
 
 import com.microservice.auth.domain.model.User;
 import io.jsonwebtoken.*;
@@ -75,5 +75,15 @@ public class JwtUtil {
                 .getBody();
 
         return Boolean.TRUE.equals(claims.get("device"));
+    }
+
+    public List<String> extractRoles(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("roles", List.class);
     }
 }

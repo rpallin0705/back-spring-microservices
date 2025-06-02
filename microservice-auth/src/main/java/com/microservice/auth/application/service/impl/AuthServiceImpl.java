@@ -5,7 +5,7 @@ import com.microservice.auth.domain.model.Role;
 import com.microservice.auth.domain.model.User;
 import com.microservice.auth.domain.repository.RoleRepository;
 import com.microservice.auth.domain.repository.UserRepository;
-import com.microservice.auth.security.JwtUtil;
+import com.microservice.auth.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
