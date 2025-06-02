@@ -22,13 +22,13 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public User register(String email, String rawPassword, String roleName) {
+    public User register(String email, String rawPassword) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("El correo ya está registrado");
         }
 
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+        Role role = roleRepository.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("Rol por defecto 'USER' no encontrado"));
 
         User user = new User(null, email, passwordEncoder.encode(rawPassword), Collections.singleton(role));
         return userRepository.save(user);
