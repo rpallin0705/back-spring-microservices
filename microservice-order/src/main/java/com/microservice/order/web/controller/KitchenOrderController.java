@@ -6,6 +6,7 @@ import com.microservice.order.web.dto.KitchenOrderDTO;
 import com.microservice.order.web.dto.OrderStatusHistoryDTO;
 import com.microservice.order.web.mapper.OrderStatusHistoryDtoMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,11 +22,13 @@ public class KitchenOrderController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_COOK')")
     public ResponseEntity<List<KitchenOrderDTO>> getKitchenOrders() {
         return ResponseEntity.ok(service.getOrdersForKitchen());
     }
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('ROLE_COOK')")
     public ResponseEntity<Void> updateKitchenOrderStatus(
             @PathVariable Long id,
             @RequestBody OrderStatusHistoryDTO dto
