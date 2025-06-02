@@ -3,6 +3,9 @@ spring:
     name: msvc-auth
   config:
     import: optional:configserver:http://localhost:8888
+  cloud:
+    compatibility-verifier:
+      enabled: false
 
 jwt:
   secret: ${JWT_SECRET:ClaveSecretaPorDefectoParaDesarrollo}
