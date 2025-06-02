@@ -7,6 +7,7 @@ import com.microservice.product.web.dto.ProductCreateDTO;
 import com.microservice.product.web.dto.ProductDTO;
 import com.microservice.product.web.mapper.ProductDtoMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class ProductController {
         return ResponseEntity.ok(ProductDtoMapper.toDto(product));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductCreateDTO dto) {
         Category category = Category.builder().id(dto.categoryId()).build();
@@ -44,6 +46,7 @@ public class ProductController {
         return ResponseEntity.ok(ProductDtoMapper.toDto(created));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductCreateDTO dto) {
         Category category = Category.builder().id(dto.categoryId()).build();
@@ -52,6 +55,7 @@ public class ProductController {
         return ResponseEntity.ok(ProductDtoMapper.toDto(updated));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.delete(id);

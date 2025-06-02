@@ -4,7 +4,7 @@ import com.microservice.kitchen.application.mapper.KitchenOrderMapper;
 import com.microservice.kitchen.application.service.KitchenService;
 import com.microservice.kitchen.domain.model.KitchenOrder;
 import com.microservice.kitchen.domain.model.OrderStatus;
-import com.microservice.kitchen.infrastructure.security.OrderClient;
+import com.microservice.kitchen.infrastructure.client.OrderClient;
 import com.microservice.kitchen.web.dto.OrderStatusHistoryDTO;
 import com.microservice.kitchen.websocket.KitchenWebSocketNotifier;
 import org.springframework.stereotype.Service;

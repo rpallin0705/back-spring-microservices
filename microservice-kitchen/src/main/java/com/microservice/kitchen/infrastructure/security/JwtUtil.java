@@ -1,4 +1,4 @@
-package com.microservice.kitchen.infrastructure.client;
+package com.microservice.kitchen.infrastructure.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

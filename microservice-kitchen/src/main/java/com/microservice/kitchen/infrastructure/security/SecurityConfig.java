@@ -1,6 +1,5 @@
 package com.microservice.kitchen.infrastructure.security;
 
-import com.microservice.kitchen.infrastructure.client.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
