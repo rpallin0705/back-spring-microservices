@@ -9,6 +9,7 @@ public class CategoryMapper {
         return Category.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .description(entity.getDescription())
                 .build();
     }
 
@@ -16,6 +17,7 @@ public class CategoryMapper {
         return CategoryEntity.builder()
                 .id(category.getId())
                 .name(category.getName())
+                .description(category.getDescription())
                 .build();
     }
 }

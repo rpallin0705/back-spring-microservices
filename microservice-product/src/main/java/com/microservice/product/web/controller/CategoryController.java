@@ -41,7 +41,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<CategoryDTO> create(@RequestBody CategoryDTO dto) {
         Category created = service.create(
-                new Category(null, dto.name())
+                new Category(null, dto.name(), dto.description())
         );
         return ResponseEntity.ok(CategoryDtoMapper.toDto(created));
     }
