@@ -7,6 +7,7 @@ import com.microservice.auth.domain.model.User;
 import com.microservice.auth.web.dto.*;
 import com.microservice.auth.web.mapper.UserDtoMapper;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,13 +28,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@Valid @RequestBody RegisterRequest request) {
         User user = authService.register(request.email(), request.password());
-
         UserDTO dto = new UserDTO(
                 user.getId(),
                 user.getEmail(),
                 user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet())
         );
-
         return ResponseEntity.ok(dto);
     }
 
@@ -45,27 +44,22 @@ public class AuthController {
 
     @PostMapping("/login/device")
     public ResponseEntity<AuthResponse> loginDevice(@RequestBody DeviceLoginRequest request) {
-        Device device = deviceService.findByDeviceId(request.deviceId())
-                .orElseThrow(() -> new RuntimeException("Dispositivo no encontrado"));
-
-        if (!device.getSecret().equals(request.secret())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        String token = authService.generateTokenForDevice(device.getDeviceId());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return deviceService.findByDeviceId(request.deviceId())
+                .filter(device -> device.getSecret().equals(request.secret()))
+                .map(device -> {
+                    String token = authService.generateTokenForDevice(device.getDeviceId());
+                    return ResponseEntity.ok(new AuthResponse(token));
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<UserDTO> validate(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> validate(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         if (!authService.validateToken(token)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado");
         }
-
         User user = authService.getUserFromToken(token);
-        UserDTO dto = UserDtoMapper.toDto(user);
-
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(UserDtoMapper.toDto(user));
     }
 }
