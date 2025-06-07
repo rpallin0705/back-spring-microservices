@@ -1,8 +1,12 @@
 package com.microservice.user.application.service.impl;
 
 import com.microservice.user.application.service.UserService;
+import com.microservice.user.domain.model.Address;
 import com.microservice.user.domain.model.User;
 import com.microservice.user.domain.repository.UserRepository;
+import com.microservice.user.web.dto.UserUpdateRequest;
+import com.microservice.user.web.mapper.AddressDtoMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +30,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Long userId = getAuthenticatedUserId(); // método que ya tienes
+
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
     @Override
@@ -55,5 +67,45 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public User updateCurrentUser(UserUpdateRequest request) {
+        Long userId = getAuthenticatedUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        boolean updated = false;
+
+        if (request.phone() != null) {
+            user.setPhone(request.phone());
+            updated = true;
+        }
+
+        if (request.address() != null) {
+            Address newAddress = AddressDtoMapper.toDomain(request.address());
+            user.getAddresses().add(newAddress);
+            updated = true;
+        }
+
+        if (updated) {
+            user.setUpdatedAt(LocalDateTime.now());
+            return userRepository.save(user);
+        }
+
+        return user;
+    }
+
+    private Long getAuthenticatedUserId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof String email) {
+            return userRepository.findByAuthEmail(email)
+                    .map(User::getId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+        }
+
+        throw new RuntimeException("No se pudo obtener el email del usuario autenticado");
     }
 }

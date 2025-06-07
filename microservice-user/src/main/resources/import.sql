@@ -1,11 +1,8 @@
--- User
-INSERT INTO user_table (id, name, email, phone, role, created_at, updated_at) VALUES (1, 'Carlos López', 'carlos@example.com', '654321987', 'CLIENTE', '2025-05-21 10:00:00', '2025-05-21 10:00:00');
-INSERT INTO user_table (id, name, email, phone, role, created_at, updated_at) VALUES (2, 'Lucía Fernández', 'lucia@example.com', '611223344', 'COCINERO', '2025-05-21 10:10:00', '2025-05-21 10:10:00');
-INSERT INTO user_table (id, name, email, phone, role, created_at, updated_at) VALUES (3, 'Andrés Martín', 'andres@example.com', '600112233', 'REPARTIDOR', '2025-05-21 10:20:00', '2025-05-21 10:20:00');
-INSERT INTO user_table (id, name, email, phone, role, created_at, updated_at) VALUES (4, 'Admin Test', 'admin@example.com', '600000001', 'ADMIN', '2025-05-21 10:30:00', '2025-05-21 10:30:00');
+-- USERS
+INSERT INTO user_table (id, name, auth_email, phone, created_at, updated_at) VALUES (1, 'admin1', 'admin1@gmail.com', '+34111111111', NOW(), NOW());
+INSERT INTO user_table (id, name, auth_email, phone, created_at, updated_at) VALUES (2, 'cook1', 'cook1@gmail.com', '+34222222222', NOW(), NOW());
+INSERT INTO user_table (id, name, auth_email, phone, created_at, updated_at) VALUES (3, 'cliente1', 'cliente1@gmail.com', '+34333333333', NOW(), NOW());
 
--- Address
-INSERT INTO address (id, street, city, postal_code, country, user_id) VALUES (1, 'Calle Gran Vía 1', 'Madrid', '28013', 'España', 1);
-INSERT INTO address (id, street, city, postal_code, country, user_id) VALUES (2, 'Avenida Diagonal 45', 'Barcelona', '08019', 'España', 2);
-INSERT INTO address (id, street, city, postal_code, country, user_id) VALUES (3, 'Calle Larios 7', 'Málaga', '29005', 'España', 3);
-INSERT INTO address (id, street, city, postal_code, country, user_id) VALUES (4, 'Calle Mayor 100', 'Valencia', '46001', 'España', 4);
+-- ADDRESSES
+INSERT INTO address (id, street, city, postal_code, country, user_id) VALUES (1, 'Calle Sakura 12', 'Madrid', '28001', 'España', 3);
+INSERT INTO address (id, street, city, postal_code, country, user_id) VALUES (2, 'Av. del Sol 45', 'Barcelona', '08021', 'España', 3);

@@ -5,6 +5,7 @@ import com.microservice.user.domain.model.User;
 import com.microservice.user.web.dto.UserCreateDTO;
 import com.microservice.user.web.dto.UserDTO;
 import com.microservice.user.web.dto.UserDetailsDTO;
+import com.microservice.user.web.dto.UserUpdateRequest;
 import com.microservice.user.web.mapper.UserDetailsDtoMapper;
 import com.microservice.user.web.mapper.UserDtoMapper;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return userService.getById(id)
                 .map(user -> ResponseEntity.ok(UserDtoMapper.toDto(user)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> getCurrentUser() {
+        User user = userService.getCurrentUser();
+        return ResponseEntity.ok(UserDtoMapper.toDto(user));
     }
 
     @GetMapping("/{userId}/details/{addressId}")
@@ -62,5 +70,14 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserDTO> updateMyUser(
+            @RequestBody UserUpdateRequest request,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        User updated = userService.updateCurrentUser(request);
+        return ResponseEntity.ok(UserDtoMapper.toDto(updated));
     }
 }
