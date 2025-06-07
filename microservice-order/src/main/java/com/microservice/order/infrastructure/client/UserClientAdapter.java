@@ -1,5 +1,6 @@
 package com.microservice.order.infrastructure.client;
 
+import com.microservice.order.web.dto.UserDTO;
 import com.microservice.order.web.dto.UserDetailsDTO;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserClientAdapter {
+
     private final UserClient userClient;
     private final HttpServletRequest request;
 
@@ -21,6 +23,14 @@ public class UserClientAdapter {
             return userClient.getAuthenticatedUserDetailsForOrder(addressId);
         } catch (FeignException.Forbidden e) {
             return null;
+        }
+    }
+
+    public UserDTO getAuthenticatedUser() {
+        try {
+            return userClient.getAuthenticatedUser();
+        } catch (FeignException e) {
+            throw new RuntimeException("No se pudo obtener el usuario autenticado", e);
         }
     }
 }

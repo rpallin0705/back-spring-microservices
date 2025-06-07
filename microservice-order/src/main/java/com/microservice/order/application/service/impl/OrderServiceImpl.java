@@ -10,11 +10,15 @@ import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
-import com.microservice.order.infrastructure.client.UserClient;
 import com.microservice.order.infrastructure.client.UserClientAdapter;
 import com.microservice.order.web.dto.*;
 import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +28,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     private final OrderRepository orderRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
@@ -75,7 +81,31 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDTO> getAllFullOrders() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        String role = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_ANONYMOUS");
+
+        log.info("\uD83D\uDCE5 Usuario autenticado: {} con rol {}", email, role);
+
+        final Long userId = role.equals("ROLE_USER")
+            ? userClientAdapter.getAuthenticatedUser().id()
+            : null;
+        if (userId != null) {
+            log.info("\uD83D\uDD0D ID del usuario autenticado: {}", userId);
+        }
+
         return orderRepository.findAll().stream()
+                .filter(order -> {
+                    return switch (role) {
+                        case "ROLE_ADMIN" -> true;
+                        case "ROLE_COOK" -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING;
+                        case "ROLE_USER" -> order.getUserId() != null && order.getUserId().equals(userId);
+                        default -> false;
+                    };
+                })
                 .map(order -> {
                     Map<Long, ProductDTO> productMap = order.getItems().stream()
                             .map(OrderItem::getProductId)
@@ -125,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
                 MenuDTO menu = menuClient.getMenuById(item.getMenuId());
 
                 if (!menu.active()) {
-                    throw new RuntimeException("Menú no disponible: " + menu.name());
+                    throw new RuntimeException("Men\u00fa no disponible: " + menu.name());
                 }
 
                 item.setPrice(menu.totalPrice());
@@ -147,7 +177,6 @@ public class OrderServiceImpl implements OrderService {
 
         return saved;
     }
-
 
     private int calculateEstimatedPreparationTime(List<OrderItem> items, Long addressId) {
         int basePerItem = ThreadLocalRandom.current().nextInt(4, 9);
@@ -205,7 +234,7 @@ public class OrderServiceImpl implements OrderService {
         OrderStatus current = order.getStatus();
 
         if (!current.canTransitionTo(newStatus)) {
-            throw new IllegalArgumentException("Transición inválida de " + current + " a " + newStatus);
+            throw new IllegalArgumentException("Transici\u00f3n inv\u00e1lida de " + current + " a " + newStatus);
         }
 
         order.setStatus(newStatus);
