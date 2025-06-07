@@ -8,6 +8,7 @@ import com.microservice.user.web.dto.UserDetailsDTO;
 import com.microservice.user.web.mapper.UserDetailsDtoMapper;
 import com.microservice.user.web.mapper.UserDtoMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserDTO>> getAll() {
         List<UserDTO> result = userService.getAll().stream()
                 .map(UserDtoMapper::toDto)
@@ -31,6 +33,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return userService.getById(id)
                 .map(user -> ResponseEntity.ok(UserDtoMapper.toDto(user)))
@@ -38,22 +41,24 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/details/{addressId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDetailsDTO> getUserDetailsForOrder(
             @PathVariable Long userId,
             @PathVariable Long addressId) {
-
         return userService.getById(userId)
                 .map(user -> ResponseEntity.ok(UserDetailsDtoMapper.toDto(user, addressId)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<UserDTO> create(@RequestBody UserCreateDTO dto) {
         User created = userService.create(UserDtoMapper.toDomain(dto));
         return ResponseEntity.ok(UserDtoMapper.toDto(created));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();

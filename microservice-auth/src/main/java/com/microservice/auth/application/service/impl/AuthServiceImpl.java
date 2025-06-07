@@ -5,7 +5,9 @@ import com.microservice.auth.domain.model.Role;
 import com.microservice.auth.domain.model.User;
 import com.microservice.auth.domain.repository.RoleRepository;
 import com.microservice.auth.domain.repository.UserRepository;
+import com.microservice.auth.infrastructure.client.UserClient;
 import com.microservice.auth.infrastructure.security.JwtUtil;
+import com.microservice.auth.web.dto.UserCreateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserClient userClient;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -31,7 +34,12 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("Rol por defecto 'USER' no encontrado"));
 
         User user = new User(null, email, passwordEncoder.encode(rawPassword), Collections.singleton(role));
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+
+        String name = email.split("@")[0];
+        userClient.createUser(new UserCreateDTO(name, email));
+
+        return saved;
     }
 
     @Override

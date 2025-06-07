@@ -6,9 +6,10 @@ import com.microservice.user.web.dto.AddressCreateDTO;
 import com.microservice.user.web.dto.AddressDTO;
 import com.microservice.user.web.mapper.AddressDtoMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/addresses")
 public class AddressController {
@@ -20,6 +21,7 @@ public class AddressController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<AddressDTO>> getAll() {
         List<AddressDTO> result = addressService.getAll().stream()
                 .map(AddressDtoMapper::toDto)
@@ -28,6 +30,7 @@ public class AddressController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AddressDTO> getById(@PathVariable Long id) {
         return addressService.getById(id)
                 .map(address -> ResponseEntity.ok(AddressDtoMapper.toDto(address)))
@@ -35,12 +38,14 @@ public class AddressController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AddressDTO> create(@RequestBody AddressCreateDTO dto) {
         Address created = addressService.create(AddressDtoMapper.toDomain(dto));
         return ResponseEntity.ok(AddressDtoMapper.toDto(created));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         addressService.delete(id);
         return ResponseEntity.noContent().build();

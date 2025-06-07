@@ -30,7 +30,6 @@ public class UserDtoMapper {
         return User.builder()
                 .name(dto.name())
                 .authEmail(dto.authEmail())
-                .phone(dto.phone())
                 .build();
     }
 }
