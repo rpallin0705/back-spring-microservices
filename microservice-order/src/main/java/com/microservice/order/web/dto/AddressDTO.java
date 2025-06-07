@@ -1,4 +1,4 @@
-package com.microservice.user.web.dto;
+package com.microservice.order.web.dto;
 
 public record AddressDTO(
         Long id,

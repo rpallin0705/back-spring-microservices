@@ -11,5 +11,5 @@ INSERT INTO users (id, email, password) VALUES (3, 'cliente1@gmail.com', '$2a$10
 
 -- User < -- > Roles
 INSERT INTO user_roles (role_id, user_id) VALUES (1, 1);
-INSERT INTO user_roles (role_id, user_id) VALUES (1, 2);
-INSERT INTO user_roles (role_id, user_id) VALUES (1, 3);
+INSERT INTO user_roles (role_id, user_id) VALUES (2, 2);
+INSERT INTO user_roles (role_id, user_id) VALUES (3, 3);
