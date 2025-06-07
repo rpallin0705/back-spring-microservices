@@ -31,7 +31,7 @@ public class OrderController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<OrderDTO> create(@RequestBody OrderCreateDTO dto) {
         Order created = service.create(OrderDtoMapper.toDomain(dto));
         return ResponseEntity.ok(service.getFullOrder(created.getId()));

@@ -33,16 +33,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getCurrentUser() {
-        Long userId = getAuthenticatedUserId(); // método que ya tienes
-
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public Optional<User> getByAuthEmail(String email) {
+        return userRepository.findByAuthEmail(email);
     }
 
     @Override
-    public Optional<User> getByAuthEmail(String email) {
-        return userRepository.findByAuthEmail(email);
+    public User getCurrentUser() {
+        return getAuthenticatedUserByEmail();
     }
 
     @Override
@@ -71,11 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateCurrentUser(UserUpdateRequest request) {
-        Long userId = getAuthenticatedUserId();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
+        User user = getAuthenticatedUserByEmail();
         boolean updated = false;
 
         if (request.phone() != null) {
@@ -97,15 +90,17 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private Long getAuthenticatedUserId() {
+    private User getAuthenticatedUserByEmail() {
+        String email = getAuthenticatedUserEmail();
+        return userRepository.findByAuthEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+    }
+
+    private String getAuthenticatedUserEmail() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         if (principal instanceof String email) {
-            return userRepository.findByAuthEmail(email)
-                    .map(User::getId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+            return email;
         }
-
         throw new RuntimeException("No se pudo obtener el email del usuario autenticado");
     }
 }

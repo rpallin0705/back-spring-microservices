@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return userService.getById(id)
                 .map(user -> ResponseEntity.ok(UserDtoMapper.toDto(user)))
@@ -48,14 +48,11 @@ public class UserController {
         return ResponseEntity.ok(UserDtoMapper.toDto(user));
     }
 
-    @GetMapping("/{userId}/details/{addressId}")
+    @GetMapping("/me/details/{addressId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserDetailsDTO> getUserDetailsForOrder(
-            @PathVariable Long userId,
-            @PathVariable Long addressId) {
-        return userService.getById(userId)
-                .map(user -> ResponseEntity.ok(UserDetailsDtoMapper.toDto(user, addressId)))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserDetailsDTO> getAuthenticatedUserDetailsForOrder(@PathVariable Long addressId) {
+        User user = userService.getCurrentUser();
+        return ResponseEntity.ok(UserDetailsDtoMapper.toDto(user, addressId));
     }
 
     @PostMapping
@@ -73,10 +70,8 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UserDTO> updateMyUser(
-            @RequestBody UserUpdateRequest request,
-            @RequestHeader("Authorization") String authHeader
-    ) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> updateMyUser(@RequestBody UserUpdateRequest request) {
         User updated = userService.updateCurrentUser(request);
         return ResponseEntity.ok(UserDtoMapper.toDto(updated));
     }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -31,22 +32,20 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = getAllClaims(token);
         return claims.getSubject();
     }
 
-    public boolean hasRole(String token, String role) {
-        Claims claims = Jwts.parserBuilder()
+    public List<String> extractRoles(String token) {
+        Claims claims = getAllClaims(token);
+        return claims.get("roles", List.class);
+    }
+
+    private Claims getAllClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
-        Object roles = claims.get("roles");
-        return roles != null && roles.toString().contains(role);
     }
 }

@@ -66,7 +66,9 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        UserDetailsDTO userDetails = userClientAdapter.getUserDetailsIfPresent(order.getUserId(), order.getAddressId());
+        UserDetailsDTO userDetails = order.getUserId() != null
+                ? userClientAdapter.getUserDetailsIfPresent(order.getAddressId())
+                : null;
 
         return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
     }
@@ -87,7 +89,9 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    UserDetailsDTO userDetails = userClientAdapter.getUserDetailsIfPresent(order.getUserId(), order.getAddressId());
+                    UserDetailsDTO userDetails = order.getUserId() != null
+                            ? userClientAdapter.getUserDetailsIfPresent(order.getAddressId())
+                            : null;
 
                     return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
                 })
