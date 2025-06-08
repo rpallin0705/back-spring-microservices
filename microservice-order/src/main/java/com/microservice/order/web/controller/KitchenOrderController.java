@@ -1,14 +1,17 @@
 package com.microservice.order.web.controller;
 
 import com.microservice.order.application.service.OrderService;
+import com.microservice.order.domain.model.OrderStatus;
 import com.microservice.order.domain.model.OrderStatusHistory;
 import com.microservice.order.web.dto.KitchenOrderDTO;
 import com.microservice.order.web.dto.OrderStatusHistoryDTO;
+import com.microservice.order.web.dto.UpdateOrderStatusDTO;
 import com.microservice.order.web.mapper.OrderStatusHistoryDtoMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -22,19 +25,19 @@ public class KitchenOrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_COOK')")
+    @PreAuthorize("hasRole('COOK')")
     public ResponseEntity<List<KitchenOrderDTO>> getKitchenOrders() {
         return ResponseEntity.ok(service.getOrdersForKitchen());
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('ROLE_COOK')")
+    @PreAuthorize("hasRole('COOK')")
     public ResponseEntity<Void> updateKitchenOrderStatus(
             @PathVariable Long id,
-            @RequestBody OrderStatusHistoryDTO dto
+            @RequestBody UpdateOrderStatusDTO dto
     ) {
-        OrderStatusHistory history = OrderStatusHistoryDtoMapper.toDomain(dto, id);
-        service.updateStatus(id, history.getStatus());
+
+        service.updateStatus(id, OrderStatus.valueOf(dto.status()));
         return ResponseEntity.noContent().build();
     }
 }

@@ -30,6 +30,8 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/orders/kitchen/**").hasAuthority("ROLE_COOK")
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/kitchen/**").hasAuthority("ROLE_COOK")
                         .requestMatchers("/api/orders/**").permitAll()
                         .anyRequest().authenticated()
                 )

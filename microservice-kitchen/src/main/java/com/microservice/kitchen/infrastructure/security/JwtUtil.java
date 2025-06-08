@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -15,13 +15,16 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    private Key getSigningKey() {
+    private Key getKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public boolean validateToken(String token) {
         try {
-            getClaims(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(getKey())
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
@@ -29,20 +32,18 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return getClaims(token).getSubject();
+        Claims claims = getAllClaims(token);
+        return claims.getSubject();
     }
 
-    public String extractRole(String token) {
-        return getClaims(token).get("role", String.class);
+    public List<String> extractRoles(String token) {
+        Claims claims = getAllClaims(token);
+        return claims.get("roles", List.class);
     }
 
-    public Date extractExpiration(String token) {
-        return getClaims(token).getExpiration();
-    }
-
-    private Claims getClaims(String token) {
+    private Claims getAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
