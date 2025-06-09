@@ -14,6 +14,7 @@ public class OrderMapper {
         return Order.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
+                .deviceId(entity.getDeviceId()) // ← añadido
                 .addressId(entity.getAddressId())
                 .createdAt(entity.getCreatedAt())
                 .status(entity.getStatus())
@@ -27,6 +28,7 @@ public class OrderMapper {
         OrderEntity entity = OrderEntity.builder()
                 .id(domain.getId())
                 .userId(domain.getUserId())
+                .deviceId(domain.getDeviceId()) // ← añadido
                 .addressId(domain.getAddressId())
                 .createdAt(domain.getCreatedAt())
                 .status(domain.getStatus())

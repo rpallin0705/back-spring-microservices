@@ -10,10 +10,15 @@ import com.microservice.order.domain.repository.OrderRepository;
 import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
-import com.microservice.order.infrastructure.client.UserClient;
+import com.microservice.order.infrastructure.client.UserClientAdapter;
 import com.microservice.order.web.dto.*;
 import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,24 +29,26 @@ import java.util.stream.Collectors;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
+
     private final OrderRepository orderRepository;
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ProductClient productClient;
     private final MenuClient menuClient;
-    private final UserClient userClient;
+    private final UserClientAdapter userClientAdapter;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderStatusHistoryRepository statusHistoryRepository,
             ProductClient productClient,
             MenuClient menuClient,
-            UserClient userClient
+            UserClientAdapter userClientAdapter
     ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productClient = productClient;
         this.menuClient = menuClient;
-        this.userClient = userClient;
+        this.userClientAdapter = userClientAdapter;
     }
 
     @Override
@@ -65,14 +72,40 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        UserDetailsDTO userDetails = userClient.getUserDetailsForOrder(order.getUserId(), order.getAddressId());
+        UserDetailsDTO userDetails = order.getUserId() != null
+                ? userClientAdapter.getUserDetailsIfPresent(order.getAddressId())
+                : null;
 
         return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
     }
 
     @Override
     public List<OrderDTO> getAllFullOrders() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        String role = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_ANONYMOUS");
+
+        log.info("\uD83D\uDCE5 Usuario autenticado: {} con rol {}", email, role);
+
+        final Long userId = role.equals("ROLE_USER")
+            ? userClientAdapter.getAuthenticatedUser().id()
+            : null;
+        if (userId != null) {
+            log.info("\uD83D\uDD0D ID del usuario autenticado: {}", userId);
+        }
+
         return orderRepository.findAll().stream()
+                .filter(order -> {
+                    return switch (role) {
+                        case "ROLE_ADMIN" -> true;
+                        case "ROLE_COOK" -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING;
+                        case "ROLE_USER" -> order.getUserId() != null && order.getUserId().equals(userId);
+                        default -> false;
+                    };
+                })
                 .map(order -> {
                     Map<Long, ProductDTO> productMap = order.getItems().stream()
                             .map(OrderItem::getProductId)
@@ -86,7 +119,9 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    UserDetailsDTO userDetails = userClient.getUserDetailsForOrder(order.getUserId(), order.getAddressId());
+                    UserDetailsDTO userDetails = order.getUserId() != null
+                            ? userClientAdapter.getUserDetailsIfPresent(order.getAddressId())
+                            : null;
 
                     return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
                 })
@@ -96,6 +131,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order create(Order order) {
         order.setCreatedAt(LocalDateTime.now());
+
+        if ((order.getUserId() == null && order.getDeviceId() == null) ||
+                (order.getUserId() != null && order.getDeviceId() != null)) {
+            throw new IllegalArgumentException("El pedido debe contener solo uno: userId o deviceId");
+        }
 
         double total = 0.0;
 
@@ -115,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
                 MenuDTO menu = menuClient.getMenuById(item.getMenuId());
 
                 if (!menu.active()) {
-                    throw new RuntimeException("Menú no disponible: " + menu.name());
+                    throw new RuntimeException("Men\u00fa no disponible: " + menu.name());
                 }
 
                 item.setPrice(menu.totalPrice());
@@ -124,7 +164,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setTotalPrice(total);
-
         int estimatedTime = calculateEstimatedPreparationTime(order.getItems(), order.getAddressId());
         order.setEstimatedPreparationTime(estimatedTime);
 
@@ -195,7 +234,7 @@ public class OrderServiceImpl implements OrderService {
         OrderStatus current = order.getStatus();
 
         if (!current.canTransitionTo(newStatus)) {
-            throw new IllegalArgumentException("Transición inválida de " + current + " a " + newStatus);
+            throw new IllegalArgumentException("Transici\u00f3n inv\u00e1lida de " + current + " a " + newStatus);
         }
 
         order.setStatus(newStatus);

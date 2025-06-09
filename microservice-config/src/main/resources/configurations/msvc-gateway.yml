@@ -45,22 +45,19 @@ spring:
           predicates:
             - Path=/ws-kitchen/**
           filters:
-            - name: RewritePath
-              args:
-                regexp: "/ws-kitchen/(?<segment>.*)"
-                replacement: "/${segment}"
+            - PreserveHostHeader
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - id: auth
+          uri: lb://msvc-auth
+          predicates:
+            - Path=/api/auth/**
 
       globalcors:
         corsConfigurations:
           '[/**]':
             allowedOrigins: "http://localhost:5173"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
             allowedHeaders: "*"
+            allowedMethods: "*"
             allowCredentials: true
 
 eureka:

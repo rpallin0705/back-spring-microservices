@@ -5,6 +5,7 @@ import com.microservice.product.domain.model.Category;
 import com.microservice.product.web.dto.CategoryDTO;
 import com.microservice.product.web.mapper.CategoryDtoMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,14 +37,16 @@ public class CategoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryDTO> create(@RequestBody CategoryDTO dto) {
         Category created = service.create(
-                new Category(null, dto.name())
+                new Category(null, dto.name(), dto.description())
         );
         return ResponseEntity.ok(CategoryDtoMapper.toDto(created));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

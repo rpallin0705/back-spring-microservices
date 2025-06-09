@@ -11,6 +11,7 @@ import java.util.List;
 public class Order {
     private Long id;
     private Long userId;
+    private String deviceId;
     private Long addressId;
     private LocalDateTime createdAt;
     private OrderStatus status;

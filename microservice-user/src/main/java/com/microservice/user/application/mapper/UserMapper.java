@@ -13,9 +13,8 @@ public class UserMapper {
         return User.builder()
                 .id(entity.getId())
                 .name(entity.getName())
-                .email(entity.getEmail())
+                .authEmail(entity.getAuthEmail())
                 .phone(entity.getPhone())
-                .role(entity.getRole())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .addresses(entity.getAddresses() != null
@@ -32,9 +31,8 @@ public class UserMapper {
         UserEntity entity = new UserEntity();
         entity.setId(domain.getId());
         entity.setName(domain.getName());
-        entity.setEmail(domain.getEmail());
+        entity.setAuthEmail(domain.getAuthEmail());
         entity.setPhone(domain.getPhone());
-        entity.setRole(domain.getRole());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
 

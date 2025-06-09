@@ -1,17 +1,18 @@
 -- CATEGORIAS
-INSERT INTO category (id, name) VALUES (1,'Sushi');
-INSERT INTO category (id, name) VALUES (2,'Ramen');
-INSERT INTO category (id, name) VALUES (3,'Tempura');
-INSERT INTO category (id, name) VALUES (4,'Sake');
-INSERT INTO category (id, name) VALUES (5,'Donburi');
-INSERT INTO category (id, name) VALUES (6,'Yakitori');
-INSERT INTO category (id, name) VALUES (7,'Udon');
-INSERT INTO category (id, name) VALUES (8,'Postres Japoneses');
-INSERT INTO category (id, name) VALUES (9, 'Carnes Japonesas');
-INSERT INTO category (id, name) VALUES (10, 'Pescado Japonés');
-INSERT INTO category (id, name) VALUES (11, 'Mariscos Japoneses');
-INSERT INTO category (id, name) VALUES (12, 'Vinos');
-INSERT INTO category (id, name) VALUES (13, 'Refrescos');
+INSERT INTO category (id, name, description) VALUES (1, 'Sushi', 'Piezas de arroz con pescado crudo o mariscos.');
+INSERT INTO category (id, name, description) VALUES (2, 'Ramen', 'Fideos en caldo japonés con toppings.');
+INSERT INTO category (id, name, description) VALUES (3, 'Tempura', 'Ingredientes fritos con rebozado ligero.');
+INSERT INTO category (id, name, description) VALUES (4, 'Sake', 'Bebida alcohólica tradicional de arroz.');
+INSERT INTO category (id, name, description) VALUES (5, 'Donburi', 'Bol de arroz con carne, pescado o verduras.');
+INSERT INTO category (id, name, description) VALUES (6, 'Yakitori', 'Brochetas japonesas a la parrilla.');
+INSERT INTO category (id, name, description) VALUES (7, 'Udon', 'Fideos gruesos servidos en caldo o salteados.');
+INSERT INTO category (id, name, description) VALUES (8, 'Postres Japoneses', 'Dulces típicos como mochi o dorayaki.');
+INSERT INTO category (id, name, description) VALUES (9, 'Carnes', 'Platos elaborados con carne de cerdo, pollo o ternera.');
+INSERT INTO category (id, name, description) VALUES (10, 'Pescado', 'Pescado preparado a la parrilla o en tataki.');
+INSERT INTO category (id, name, description) VALUES (11, 'Mariscos', 'Platos de marisco como langostinos o pulpo.');
+INSERT INTO category (id, name, description) VALUES (12, 'Vinos', 'Selección de vinos japoneses y españoles.');
+INSERT INTO category (id, name, description) VALUES (13, 'Refrescos', 'Bebidas sin alcohol como té verde o Ramune.');
+INSERT INTO category (id, name, description) VALUES (14, 'Menús', 'Combinaciones de platos listos para servir.');
 
 -- PRODUCTOS
 

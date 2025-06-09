@@ -22,6 +22,8 @@ public class OrderEntity {
 
     private Long userId;
 
+    private String deviceId;
+
     private Long addressId;
 
     private LocalDateTime createdAt;

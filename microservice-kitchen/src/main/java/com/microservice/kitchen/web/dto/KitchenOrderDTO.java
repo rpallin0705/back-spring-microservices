@@ -9,5 +9,6 @@ public record KitchenOrderDTO(
         Long id,
         OrderStatus status,
         LocalDateTime createdAt,
+        String deviceId,
         List<KitchenItemDTO> items
 ) {}

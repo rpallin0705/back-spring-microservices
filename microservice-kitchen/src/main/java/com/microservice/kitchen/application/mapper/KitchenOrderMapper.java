@@ -20,6 +20,7 @@ public class KitchenOrderMapper {
                 .id(dto.id())
                 .status(dto.status())
                 .createdAt(dto.createdAt())
+                .deviceId(dto.deviceId())
                 .items(items)
                 .build();
     }
@@ -33,6 +34,7 @@ public class KitchenOrderMapper {
                 domain.getId(),
                 domain.getStatus(),
                 domain.getCreatedAt(),
+                domain.getDeviceId(),
                 items
         );
     }

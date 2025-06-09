@@ -6,6 +6,6 @@ import com.microservice.product.web.dto.CategoryDTO;
 public class CategoryDtoMapper {
 
     public static CategoryDTO toDto(Category category) {
-        return new CategoryDTO(category.getId(), category.getName());
+        return new CategoryDTO(category.getId(), category.getName(), category.getDescription());
     }
 }

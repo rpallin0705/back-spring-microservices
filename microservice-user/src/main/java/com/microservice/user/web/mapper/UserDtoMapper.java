@@ -14,9 +14,8 @@ public class UserDtoMapper {
         return new UserDTO(
                 user.getId(),
                 user.getName(),
-                user.getEmail(),
+                user.getAuthEmail(),
                 user.getPhone(),
-                user.getRole(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getAddresses() != null
@@ -30,9 +29,7 @@ public class UserDtoMapper {
 
         return User.builder()
                 .name(dto.name())
-                .email(dto.email())
-                .phone(dto.phone())
-                .role(dto.role())
+                .authEmail(dto.authEmail())
                 .build();
     }
 }

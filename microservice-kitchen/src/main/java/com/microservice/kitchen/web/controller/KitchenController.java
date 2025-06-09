@@ -5,6 +5,7 @@ import com.microservice.kitchen.application.service.KitchenService;
 import com.microservice.kitchen.web.dto.KitchenOrderDTO;
 import com.microservice.kitchen.web.dto.OrderStatusHistoryDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class KitchenController {
         this.kitchenService = kitchenService;
     }
 
+    @PreAuthorize("hasRole('COOK')")
     @GetMapping("/orders")
     public ResponseEntity<List<KitchenOrderDTO>> getPendingOrders() {
         List<KitchenOrderDTO> result = kitchenService.getPendingOrders().stream()
@@ -27,6 +29,7 @@ public class KitchenController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasRole('COOK')")
     @PutMapping("/orders/{id}/status")
     public ResponseEntity<Void> updateOrderStatus(
             @PathVariable Long id,

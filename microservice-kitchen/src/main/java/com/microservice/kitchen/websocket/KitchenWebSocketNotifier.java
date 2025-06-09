@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 public class KitchenWebSocketNotifier {
@@ -12,6 +14,10 @@ public class KitchenWebSocketNotifier {
     private final SimpMessagingTemplate messagingTemplate;
 
     public void notifyOrderUpdate(KitchenOrder order) {
-        messagingTemplate.convertAndSend("/topic/order-status", order);
+        Map<String, Object> payload = Map.of(
+                "id", order.getId(),
+                "status", order.getStatus().name()
+        );
+        messagingTemplate.convertAndSend("/topic/order-status", payload);
     }
 }

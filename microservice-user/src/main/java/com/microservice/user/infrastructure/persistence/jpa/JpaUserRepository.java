@@ -32,8 +32,8 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return repository.findByEmail(email).map(UserMapper::toDomain);
+    public Optional<User> findByAuthEmail(String email) {
+        return repository.findByAuthEmail(email).map(UserMapper::toDomain);
     }
 
     @Override
