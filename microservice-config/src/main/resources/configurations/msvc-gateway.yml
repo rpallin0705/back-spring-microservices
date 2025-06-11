@@ -47,6 +47,13 @@ spring:
           filters:
             - PreserveHostHeader
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - id: orders-ws
+          uri: lb://msvc-order
+          predicates:
+            - Path=/ws-orders/**
+          filters:
+            - PreserveHostHeader
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
         - id: auth
           uri: lb://msvc-auth
           predicates:

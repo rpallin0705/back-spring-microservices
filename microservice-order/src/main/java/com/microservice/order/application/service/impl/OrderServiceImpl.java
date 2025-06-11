@@ -11,6 +11,7 @@ import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
 import com.microservice.order.infrastructure.client.UserClientAdapter;
+import com.microservice.order.infrastructure.websocket.OrderWebSocketNotifier;
 import com.microservice.order.web.dto.*;
 import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
@@ -37,19 +38,23 @@ public class OrderServiceImpl implements OrderService {
     private final ProductClient productClient;
     private final MenuClient menuClient;
     private final UserClientAdapter userClientAdapter;
+    private final OrderWebSocketNotifier websocketNotifier;
+
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderStatusHistoryRepository statusHistoryRepository,
             ProductClient productClient,
             MenuClient menuClient,
-            UserClientAdapter userClientAdapter
+            UserClientAdapter userClientAdapter,
+            OrderWebSocketNotifier webSocketNotifer
     ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productClient = productClient;
         this.menuClient = menuClient;
         this.userClientAdapter = userClientAdapter;
+        this.websocketNotifier = webSocketNotifer;
     }
 
     @Override
@@ -177,6 +182,8 @@ public class OrderServiceImpl implements OrderService {
                 .status(saved.getStatus())
                 .changedAt(LocalDateTime.now())
                 .build());
+
+        websocketNotifier.notifyNewOrder(saved.getId());
 
         return saved;
     }
