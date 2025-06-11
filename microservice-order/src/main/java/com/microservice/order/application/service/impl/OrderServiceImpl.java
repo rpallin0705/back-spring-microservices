@@ -21,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -91,17 +92,19 @@ public class OrderServiceImpl implements OrderService {
         log.info("\uD83D\uDCE5 Usuario autenticado: {} con rol {}", email, role);
 
         final Long userId = role.equals("ROLE_USER")
-            ? userClientAdapter.getAuthenticatedUser().id()
-            : null;
+                ? userClientAdapter.getAuthenticatedUser().id()
+                : null;
         if (userId != null) {
             log.info("\uD83D\uDD0D ID del usuario autenticado: {}", userId);
         }
+
+        final LocalDate today = LocalDate.now();
 
         return orderRepository.findAll().stream()
                 .filter(order -> {
                     return switch (role) {
                         case "ROLE_ADMIN" -> true;
-                        case "ROLE_COOK" -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING;
+                        case "ROLE_COOK" -> order.getCreatedAt().toLocalDate().equals(today);
                         case "ROLE_USER" -> order.getUserId() != null && order.getUserId().equals(userId);
                         default -> false;
                     };
