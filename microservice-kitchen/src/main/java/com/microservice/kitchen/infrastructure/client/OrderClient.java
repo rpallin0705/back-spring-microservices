@@ -2,6 +2,7 @@ package com.microservice.kitchen.infrastructure.client;
 
 import com.microservice.kitchen.infrastructure.config.FeignClientConfig;
 import com.microservice.kitchen.web.dto.KitchenOrderDTO;
+import com.microservice.kitchen.web.dto.OrderDTO;
 import com.microservice.kitchen.web.dto.OrderStatusHistoryDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,7 @@ import java.util.List;
 )
 public interface OrderClient {
     @GetMapping
-    List<KitchenOrderDTO> getOrdersForKitchen();
+    List<OrderDTO> getOrdersForKitchen();
 
     @PutMapping("/{id}/status")
     void updateOrderStatus(@PathVariable("id") Long orderId, @RequestBody OrderStatusHistoryDTO dto);

@@ -1,4 +1,6 @@
-package com.microservice.user.web.dto;
+package com.microservice.order.web.dto;
+
+import com.microservice.kitchen.web.dto.AddressDTO;
 
 public record UserDetailsDTO(
         Long id,

@@ -5,6 +5,7 @@ import com.microservice.kitchen.application.service.KitchenService;
 import com.microservice.kitchen.domain.model.KitchenOrder;
 import com.microservice.kitchen.domain.model.OrderStatus;
 import com.microservice.kitchen.infrastructure.client.OrderClient;
+import com.microservice.kitchen.web.dto.OrderDTO;
 import com.microservice.kitchen.web.dto.OrderStatusHistoryDTO;
 import com.microservice.kitchen.websocket.KitchenWebSocketNotifier;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,8 @@ public class KitchenServiceImpl implements KitchenService {
     }
 
     @Override
-    public List<KitchenOrder> getPendingOrders() {
-        return orderClient.getOrdersForKitchen().stream()
-                .map(KitchenOrderMapper::toDomain)
-                .toList();
+    public List<OrderDTO> getPendingOrders() {
+        return orderClient.getOrdersForKitchen();
     }
 
     @Override

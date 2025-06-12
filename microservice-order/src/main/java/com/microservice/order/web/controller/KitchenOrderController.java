@@ -4,6 +4,7 @@ import com.microservice.order.application.service.OrderService;
 import com.microservice.order.domain.model.OrderStatus;
 import com.microservice.order.domain.model.OrderStatusHistory;
 import com.microservice.order.web.dto.KitchenOrderDTO;
+import com.microservice.order.web.dto.OrderDTO;
 import com.microservice.order.web.dto.OrderStatusHistoryDTO;
 import com.microservice.order.web.dto.UpdateOrderStatusDTO;
 import com.microservice.order.web.mapper.OrderStatusHistoryDtoMapper;
@@ -26,8 +27,8 @@ public class KitchenOrderController {
 
     @GetMapping
     @PreAuthorize("hasRole('COOK')")
-    public ResponseEntity<List<KitchenOrderDTO>> getKitchenOrders() {
-        return ResponseEntity.ok(service.getOrdersForKitchen());
+    public ResponseEntity<List<OrderDTO>> getKitchenOrders() {
+        return ResponseEntity.ok(service.getAllFullOrders());
     }
 
     @PutMapping("/{id}/status")

@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -54,6 +55,22 @@ public class UserController {
         User user = userService.getCurrentUser();
         return ResponseEntity.ok(UserDetailsDtoMapper.toDto(user, addressId));
     }
+
+    @GetMapping("/details/{userId}/{addressId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDetailsDTO> getUserDetailsForOrder(
+            @PathVariable Long userId,
+            @PathVariable Long addressId
+    ) {
+        Optional<User> oUser = userService.getById(userId);
+        System.out.println("=====================================================");
+        System.out.println(userId);
+        System.out.println(addressId);
+        System.out.println(oUser.get());
+        System.out.println("=====================================================");
+        return ResponseEntity.ok(UserDetailsDtoMapper.toDto(oUser.get(), addressId));
+    }
+
 
     @PostMapping
     @PreAuthorize("permitAll()")

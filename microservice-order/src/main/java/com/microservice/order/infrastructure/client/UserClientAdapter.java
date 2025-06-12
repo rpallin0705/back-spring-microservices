@@ -33,4 +33,14 @@ public class UserClientAdapter {
             throw new RuntimeException("No se pudo obtener el usuario autenticado", e);
         }
     }
+
+    public UserDetailsDTO getUserDetailsById(Long userId, Long addressId) {
+        if (userId == null || addressId == null) return null;
+        try {
+            return userClient.getUserDetailsForOrder(userId, addressId);
+        } catch (FeignException e) {
+            return null;
+        }
+    }
+
 }

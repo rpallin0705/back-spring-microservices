@@ -11,6 +11,7 @@ import com.microservice.order.domain.repository.OrderStatusHistoryRepository;
 import com.microservice.order.infrastructure.client.MenuClient;
 import com.microservice.order.infrastructure.client.ProductClient;
 import com.microservice.order.infrastructure.client.UserClientAdapter;
+import com.microservice.order.infrastructure.websocket.OrderWebSocketNotifier;
 import com.microservice.order.web.dto.*;
 import com.microservice.order.web.mapper.KitchenOrderMapper;
 import com.microservice.order.web.mapper.OrderDtoMapper;
@@ -21,6 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,19 +38,23 @@ public class OrderServiceImpl implements OrderService {
     private final ProductClient productClient;
     private final MenuClient menuClient;
     private final UserClientAdapter userClientAdapter;
+    private final OrderWebSocketNotifier websocketNotifier;
+
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderStatusHistoryRepository statusHistoryRepository,
             ProductClient productClient,
             MenuClient menuClient,
-            UserClientAdapter userClientAdapter
+            UserClientAdapter userClientAdapter,
+            OrderWebSocketNotifier webSocketNotifer
     ) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productClient = productClient;
         this.menuClient = menuClient;
         this.userClientAdapter = userClientAdapter;
+        this.websocketNotifier = webSocketNotifer;
     }
 
     @Override
@@ -72,8 +78,8 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-        UserDetailsDTO userDetails = order.getUserId() != null
-                ? userClientAdapter.getUserDetailsIfPresent(order.getAddressId())
+        UserDetailsDTO userDetails = order.getUserId() != null && order.getAddressId() != null
+                ? userClientAdapter.getUserDetailsById(order.getUserId(), order.getAddressId())
                 : null;
 
         return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
@@ -91,17 +97,19 @@ public class OrderServiceImpl implements OrderService {
         log.info("\uD83D\uDCE5 Usuario autenticado: {} con rol {}", email, role);
 
         final Long userId = role.equals("ROLE_USER")
-            ? userClientAdapter.getAuthenticatedUser().id()
-            : null;
+                ? userClientAdapter.getAuthenticatedUser().id()
+                : null;
         if (userId != null) {
             log.info("\uD83D\uDD0D ID del usuario autenticado: {}", userId);
         }
+
+        final LocalDate today = LocalDate.now();
 
         return orderRepository.findAll().stream()
                 .filter(order -> {
                     return switch (role) {
                         case "ROLE_ADMIN" -> true;
-                        case "ROLE_COOK" -> order.getStatus() == OrderStatus.CREATED || order.getStatus() == OrderStatus.PREPARING;
+                        case "ROLE_COOK" -> order.getCreatedAt().toLocalDate().equals(today);
                         case "ROLE_USER" -> order.getUserId() != null && order.getUserId().equals(userId);
                         default -> false;
                     };
@@ -119,8 +127,8 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    UserDetailsDTO userDetails = order.getUserId() != null
-                            ? userClientAdapter.getUserDetailsIfPresent(order.getAddressId())
+                    UserDetailsDTO userDetails = order.getUserId() != null && order.getAddressId() != null
+                            ? userClientAdapter.getUserDetailsById(order.getUserId(), order.getAddressId())
                             : null;
 
                     return OrderDtoMapper.toDto(order, productMap, menuMap, userDetails);
@@ -174,6 +182,8 @@ public class OrderServiceImpl implements OrderService {
                 .status(saved.getStatus())
                 .changedAt(LocalDateTime.now())
                 .build());
+
+        websocketNotifier.notifyNewOrder(saved.getId());
 
         return saved;
     }
