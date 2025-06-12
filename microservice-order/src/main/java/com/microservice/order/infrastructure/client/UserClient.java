@@ -17,4 +17,10 @@ public interface UserClient {
     UserDetailsDTO getAuthenticatedUserDetailsForOrder(
             @PathVariable("addressId") Long addressId
     );
+
+    @GetMapping("/details/{userId}/{addressId}")
+    UserDetailsDTO getUserDetailsForOrder(
+            @PathVariable("userId") Long userId,
+            @PathVariable("addressId") Long addressId
+    );
 }
