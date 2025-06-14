@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAll() {
         List<UserDTO> result = userService.getAll().stream()
                 .map(UserDtoMapper::toDto)
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return userService.getById(id)
                 .map(user -> ResponseEntity.ok(UserDtoMapper.toDto(user)))
@@ -63,11 +63,6 @@ public class UserController {
             @PathVariable Long addressId
     ) {
         Optional<User> oUser = userService.getById(userId);
-        System.out.println("=====================================================");
-        System.out.println(userId);
-        System.out.println(addressId);
-        System.out.println(oUser.get());
-        System.out.println("=====================================================");
         return ResponseEntity.ok(UserDetailsDtoMapper.toDto(oUser.get(), addressId));
     }
 
