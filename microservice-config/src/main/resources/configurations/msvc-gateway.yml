@@ -1,0 +1,72 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: msvc-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: products
+          uri: lb://msvc-product
+          predicates:
+            - Path=/api/products/**
+        - id: menus
+          uri: lb://msvc-product
+          predicates:
+            - Path=/api/menus/**
+        - id: categories
+          uri: lb://msvc-product
+          predicates:
+            - Path=/api/categories/**
+        - id: orders
+          uri: lb://msvc-order
+          predicates:
+            - Path=/api/orders/**
+        - id: users
+          uri: lb://msvc-user
+          predicates:
+            - Path=/api/users/**
+        - id: address
+          uri: lb://msvc-user
+          predicates:
+            - Path=/api/addresses/**
+        - id: kitchen
+          uri: lb://msvc-kitchen
+          predicates:
+            - Path=/api/kitchen/**
+        - id: kitchen-ws
+          uri: lb://msvc-kitchen
+          predicates:
+            - Path=/ws-kitchen/**
+          filters:
+            - PreserveHostHeader
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - id: orders-ws
+          uri: lb://msvc-order
+          predicates:
+            - Path=/ws-orders/**
+          filters:
+            - PreserveHostHeader
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - id: auth
+          uri: lb://msvc-auth
+          predicates:
+            - Path=/api/auth/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+            allowCredentials: true
+
+eureka:
+  client:
+    register-with-eureka: false
