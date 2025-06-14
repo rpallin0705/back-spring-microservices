@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - spring-cloud-network
+
   config-server:
     build:
       context: ./microservice-config
@@ -9,6 +21,9 @@ services:
       - "8888:8888"
     networks:
       - spring-cloud-network
+    depends_on:
+      - mysql
+
   eureka-server:
     build:
       context: ./microservice-eureka
@@ -20,6 +35,19 @@ services:
     networks:
       - spring-cloud-network
 
+  auth-service:
+    build:
+      context: ./microservice-auth
+    container_name: auth-service
+    ports:
+      - "8094:8094"
+    networks:
+      - spring-cloud-network
+    depends_on:
+      - config-server
+      - eureka-server
+      - mysql
+    restart: on-failure
 
 networks:
   spring-cloud-network:
