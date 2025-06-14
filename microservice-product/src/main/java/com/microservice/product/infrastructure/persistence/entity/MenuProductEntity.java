@@ -17,6 +17,8 @@ public class MenuProductEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private MenuEntity menu;
 
     @ManyToOne(fetch = FetchType.LAZY)

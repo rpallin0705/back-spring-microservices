@@ -1,4 +1,5 @@
 package com.microservice.product.application.mapper;
+
 import com.microservice.product.domain.model.Menu;
 import com.microservice.product.domain.model.MenuProduct;
 import com.microservice.product.domain.model.Product;
@@ -32,20 +33,27 @@ public class MenuMapper {
     public static MenuEntity toEntity(Menu domain) {
         if (domain == null) return null;
 
-        List<MenuProductEntity> productEntities = domain.getIncludedProducts() != null
-                ? domain.getIncludedProducts().stream()
-                .map(mp -> toEntityMenuProduct(mp, domain))
-                .toList()
-                : List.of();
-
-        return MenuEntity.builder()
+        MenuEntity menuEntity = MenuEntity.builder()
                 .id(domain.getId())
                 .name(domain.getName())
                 .description(domain.getDescription())
                 .totalPrice(domain.getTotalPrice())
                 .active(domain.getActive())
-                .includedProducts(productEntities)
                 .build();
+
+        List<MenuProductEntity> productEntities = domain.getIncludedProducts() != null
+                ? domain.getIncludedProducts().stream()
+                .map(mp -> MenuProductEntity.builder()
+                        .id(mp.getId())
+                        .cantidad(mp.getQuantity())
+                        .producto(toEntityProduct(mp.getProduct()))
+                        .menu(menuEntity)
+                        .build())
+                .toList()
+                : List.of();
+
+        menuEntity.setIncludedProducts(productEntities);
+        return menuEntity;
     }
 
     private static MenuProduct toDomainMenuProduct(MenuProductEntity entity) {
@@ -55,16 +63,6 @@ public class MenuMapper {
                 .id(entity.getId())
                 .quantity(entity.getCantidad())
                 .product(toDomainProduct(entity.getProducto()))
-                .build();
-    }
-
-    private static MenuProductEntity toEntityMenuProduct(MenuProduct domain, Menu menu) {
-        if (domain == null) return null;
-
-        return MenuProductEntity.builder()
-                .id(domain.getId())
-                .cantidad(domain.getQuantity())
-                .producto(toEntityProduct(domain.getProduct()))
                 .build();
     }
 
