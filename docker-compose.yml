@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  config-server:
+    build:
+      context: ./microservice-config
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - spring-cloud-network
+  eureka-server:
+    build:
+      context: ./microservice-eureka
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    networks:
+      - spring-cloud-network
+
+
+networks:
+  spring-cloud-network:
+    driver: bridge
