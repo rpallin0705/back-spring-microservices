@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -48,4 +49,16 @@ public class JwtUtil {
 
         return Boolean.TRUE.equals(claims.get("device"));
     }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("roles", List.class);
+    }
+
 }
