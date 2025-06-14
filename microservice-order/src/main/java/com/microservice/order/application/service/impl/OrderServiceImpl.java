@@ -89,30 +89,32 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> getAllFullOrders() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        String role = auth.getAuthorities().stream()
+
+        Set<String> authorities = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("ROLE_ANONYMOUS");
+                .collect(Collectors.toSet());
 
-        log.info("\uD83D\uDCE5 Usuario autenticado: {} con rol {}", email, role);
+        boolean isAdmin = authorities.contains("ROLE_ADMIN");
+        boolean isCook = authorities.contains("ROLE_COOK");
+        boolean isUser = authorities.contains("ROLE_USER");
 
-        final Long userId = role.equals("ROLE_USER")
-                ? userClientAdapter.getAuthenticatedUser().id()
-                : null;
-        if (userId != null) {
-            log.info("\uD83D\uDD0D ID del usuario autenticado: {}", userId);
+
+        Long userId;
+        if (isUser) {
+            userId = userClientAdapter.getAuthenticatedUser().id();
+            log.info("🔍 ID del usuario autenticado: {}", userId);
+        } else {
+            userId = null;
         }
 
         final LocalDate today = LocalDate.now();
 
         return orderRepository.findAll().stream()
                 .filter(order -> {
-                    return switch (role) {
-                        case "ROLE_ADMIN" -> true;
-                        case "ROLE_COOK" -> order.getCreatedAt().toLocalDate().equals(today);
-                        case "ROLE_USER" -> order.getUserId() != null && order.getUserId().equals(userId);
-                        default -> false;
-                    };
+                    if (isAdmin) return true;
+                    if (isCook) return order.getCreatedAt().toLocalDate().equals(today);
+                    if (isUser) return order.getUserId() != null && order.getUserId().equals(userId);
+                    return false;
                 })
                 .map(order -> {
                     Map<Long, ProductDTO> productMap = order.getItems().stream()
@@ -127,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
                             .distinct()
                             .collect(Collectors.toMap(mid -> mid, menuClient::getMenuById));
 
-                    UserDetailsDTO userDetails = order.getUserId() != null && order.getAddressId() != null
+                    UserDetailsDTO userDetails = (order.getUserId() != null && order.getAddressId() != null)
                             ? userClientAdapter.getUserDetailsById(order.getUserId(), order.getAddressId())
                             : null;
 
