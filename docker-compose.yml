@@ -65,6 +65,19 @@ services:
       - spring-cloud-network
     restart: on-failure
 
+  user-service:
+    build:
+      context: ./microservice-user
+    container_name: user-service
+    ports:
+      - "8092:8092"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
 
 networks:
   spring-cloud-network:
