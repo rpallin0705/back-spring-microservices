@@ -104,6 +104,30 @@ services:
       - spring-cloud-network
     restart: on-failure
 
+  gateway:
+    build:
+      context: ./microservice-gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      auth-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      kitchen-service:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+
 networks:
   spring-cloud-network:
     driver: bridge
