@@ -6,11 +6,11 @@ spring:
     name: msvc-kitchen
 
 eureka:
-  instance:
-    hostname: localhost
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 jwt:
   secret: ${JWT_SECRET:ClaveSecretaPorDefectoParaDesarrollo}

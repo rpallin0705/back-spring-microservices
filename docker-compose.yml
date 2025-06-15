@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - spring-cloud-network
+
+  config-server:
+    build:
+      context: ./microservice-config
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - spring-cloud-network
+    depends_on:
+      mysql:
+        condition: service_started
+    restart: on-failure
+
+  eureka-server:
+    build:
+      context: ./microservice-eureka
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      config-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+  auth-service:
+    build:
+      context: ./microservice-auth
+    container_name: auth-service
+    depends_on:
+      eureka-server:
+        condition: service_started
+    ports:
+      - "8094:8094"
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+  product-service:
+    build:
+      context: ./microservice-product
+    container_name: product-service
+    ports:
+      - "8090:8090"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+  user-service:
+    build:
+      context: ./microservice-user
+    container_name: user-service
+    ports:
+      - "8092:8092"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+  order-service:
+    build:
+      context: ./microservice-order
+    container_name: order-service
+    ports:
+      - "8091:8091"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+  kitchen-service:
+    build:
+      context: ./microservice-kitchen
+    container_name: kitchen-service
+    ports:
+      - "8093:8093"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+  gateway:
+    build:
+      context: ./microservice-gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      auth-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      kitchen-service:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
+
+networks:
+  spring-cloud-network:
+    driver: bridge

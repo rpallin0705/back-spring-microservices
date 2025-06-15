@@ -2,7 +2,15 @@ spring:
   application:
     name: msvc-order
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:http://config-server:8888
 
 jwt:
   secret: ${JWT_SECRET:ClaveSecretaPorDefectoParaDesarrollo}
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true

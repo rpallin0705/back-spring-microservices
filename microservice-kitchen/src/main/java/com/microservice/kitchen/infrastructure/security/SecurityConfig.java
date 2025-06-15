@@ -36,6 +36,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/check").permitAll()
                         .requestMatchers("/ws-kitchen/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/kitchen/**").hasAuthority("ROLE_COOK")

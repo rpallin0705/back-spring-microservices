@@ -2,10 +2,16 @@ spring:
   application:
     name: msvc-auth
   config:
-    import: optional:configserver:http://localhost:8888
-
+    import: optional:configserver:http://config-server:8888
 
 jwt:
   secret: ${JWT_SECRET:ClaveSecretaPorDefectoParaDesarrollo}
   expiration: 3600000 # 1 hora
   device-expiration: 1800000000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
