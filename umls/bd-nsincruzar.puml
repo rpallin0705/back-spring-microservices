@@ -1,0 +1,129 @@
+@startuml BBDD-Kizuna
+
+' =======================
+' === PRODUCT SERVICE ===
+' =======================
+entity "CategoryEntity" {
+  + Long id
+  --
+  + String name
+  + String description
+}
+
+entity "ProductEntity" {
+  + Long id
+  --
+  + String name
+  + String description
+  + Double price
+  + Boolean available
+}
+
+entity "MenuEntity" {
+  + Long id
+  --
+  + String name
+  + String description
+  + Double totalPrice
+  + Boolean active
+}
+
+entity "MenuProductEntity" {
+  + Long id
+  --
+  + Integer cantidad
+}
+
+ProductEntity }o--|| CategoryEntity : category
+MenuProductEntity }o--|| MenuEntity : menu
+MenuProductEntity }o--|| ProductEntity : producto
+MenuEntity ||--o{ MenuProductEntity : includedProducts
+
+
+' ===================
+' === USER SERVICE ===
+' ===================
+entity "UserEntity (UserService)" as US_User {
+  + Long id
+  --
+  + String name
+  + String authEmail
+  + String phone
+  + LocalDateTime createdAt
+  + LocalDateTime updatedAt
+}
+
+entity "AddressEntity" {
+  + Long id
+  --
+  + String street
+  + String city
+  + String postalCode
+  + String country
+}
+
+AddressEntity }o--|| US_User : user
+US_User ||--o{ AddressEntity : addresses
+
+
+' ===================
+' === AUTH SERVICE ===
+' ===================
+entity "UserEntity (AuthService)" as Auth_User {
+  + Long id
+  --
+  + String email
+  + String password
+}
+
+entity "RoleEntity" {
+  + Long id
+  --
+  + String name
+}
+
+entity "DeviceEntity" {
+  + Long id
+  --
+  + String deviceId
+  + String secret
+}
+
+Auth_User }--{ RoleEntity : roles
+
+
+' =====================
+' === ORDER SERVICE ===
+' =====================
+entity "OrderEntity" {
+  + Long id
+  --
+  + Long userId
+  + String deviceId
+  + Long addressId
+  + LocalDateTime createdAt
+  + OrderStatus status
+  + Double totalPrice
+  + Integer estimatedPreparationTime
+}
+
+entity "OrderItemEntity" {
+  + Long id
+  --
+  + Long productId
+  + Long menuId
+  + Integer quantity
+  + Double price
+}
+
+entity "OrderStatusHistoryEntity" {
+  + Long id
+  --
+  + OrderStatus status
+  + LocalDateTime changedAt
+}
+
+OrderEntity ||--o{ OrderItemEntity : items
+OrderEntity ||--o{ OrderStatusHistoryEntity : history
+
+@enduml

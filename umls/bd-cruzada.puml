@@ -1,0 +1,154 @@
+@startuml BBDD-Kizuna
+
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 30
+skinparam classAttributeIconSize 0
+
+' ======================== PRODUCT SERVICE ========================
+package "msvc-product" {
+
+  entity CategoryEntity {
+    + Long id
+    --
+    + String name
+    + String description
+  }
+
+  entity ProductEntity {
+    + Long id
+    --
+    + String name
+    + String description
+    + Double price
+    + Boolean available
+    --
+    + category_id
+  }
+
+  entity MenuEntity {
+    + Long id
+    --
+    + String name
+    + String description
+    + Double totalPrice
+    + Boolean active
+  }
+
+  entity MenuProductEntity {
+    + Long id
+    --
+    + Integer cantidad
+    + menu_id
+    + producto_id
+  }
+
+  ProductEntity }o--|| CategoryEntity : category
+  MenuProductEntity }o--|| MenuEntity : menu
+  MenuProductEntity }o--|| ProductEntity : producto
+  MenuEntity ||--o{ MenuProductEntity : includedProducts
+}
+
+
+' ======================== USER SERVICE ========================
+package "msvc-user" {
+
+  entity UserEntity_user {
+    + Long id
+    --
+    + String name
+    + String authEmail
+    + String phone
+    + LocalDateTime createdAt
+    + LocalDateTime updatedAt
+  }
+
+  entity AddressEntity {
+    + Long id
+    --
+    + String street
+    + String city
+    + String postalCode
+    + String country
+    + user_id
+  }
+
+  AddressEntity }o--|| UserEntity_user : user
+  UserEntity_user ||--o{ AddressEntity : addresses
+}
+
+
+' ======================== AUTH SERVICE ========================
+package "msvc-auth" {
+
+  entity UserEntity_auth {
+    + Long id
+    --
+    + String email
+    + String password
+  }
+
+  entity RoleEntity {
+    + Long id
+    --
+    + String name
+  }
+
+  entity DeviceEntity {
+    + Long id
+    --
+    + String deviceId
+    + String secret
+  }
+
+  UserEntity_auth }--{ RoleEntity : roles
+}
+
+
+' ======================== ORDER SERVICE ========================
+package "msvc-order" {
+
+  entity OrderEntity {
+    + Long id
+    --
+    + Long userId
+    + String deviceId
+    + Long addressId
+    + LocalDateTime createdAt
+    + OrderStatus status
+    + Double totalPrice
+    + Integer estimatedPreparationTime
+  }
+
+  entity OrderItemEntity {
+    + Long id
+    --
+    + Long productId
+    + Long menuId
+    + Integer quantity
+    + Double price
+    + order_id
+  }
+
+  entity OrderStatusHistoryEntity {
+    + Long id
+    --
+    + OrderStatus status
+    + LocalDateTime changedAt
+    + order_id
+  }
+
+  OrderEntity ||--o{ OrderItemEntity : items
+  OrderEntity ||--o{ OrderStatusHistoryEntity : history
+}
+
+
+' ======================== RELACIONES ENTRE MICROSERVICIOS ========================
+OrderEntity --> UserEntity_user : userId
+OrderEntity --> AddressEntity : addressId
+OrderEntity --> DeviceEntity : deviceId
+OrderItemEntity --> ProductEntity : productId
+OrderItemEntity --> MenuEntity : menuId
+UserEntity_user --> UserEntity_auth : authEmail = email
+
+@enduml
