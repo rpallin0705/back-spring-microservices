@@ -6,6 +6,8 @@ La comunicación entre microservicios se realiza principalmente a través de **F
 
 A continuación se describe la estructura de cada microservicio, sus responsabilidades, endpoints principales, modelos clave y dependencias.
 
+![estructura](umls/msvc.png)
+
 ---
 
 ## Microservicios principales

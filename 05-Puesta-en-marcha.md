@@ -61,6 +61,14 @@ npm run serve
 
 Esto iniciará el servidor en `http://localhost:5173` (o el puerto que esté configurado en `vue.config.js`).
 
+Para iniciar sesión en la aplicación los usuarios son:
+
+- cliente1@gmail.com 
+- cook1@gmail.com
+- admin1@gmail.com
+
+Todos con contraseña: 12345
+
 > En esta versión, no se ha realizado despliegue en producción ni empaquetado con Docker. Para pruebas y desarrollo, `npm run serve` es suficiente.
 
 <div style="page-break-after: always;"></div>

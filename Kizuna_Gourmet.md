@@ -154,20 +154,9 @@ El sistema permite a los usuarios realizar pedidos desde la web, mientras que el
 * WebFontLoader y Roboto Fontface para la tipografía
 * Soporte completo para TypeScript
 
-### Frontend Android (Jetpack Compose)
-
-* Kotlin
-* Android Jetpack
-* Firebase para autenticación
-* Retrofit + StateFlow para peticiones y estado
-* Coil para carga de imágenes
-
 ### Infraestructura
 
 * Docker Compose para despliegue orquestado
-* Ngrok para exposición remota del backend
-* Banana Pi M1 como servidor de producción local
-
 ---
 
 ## Módulos backend
@@ -185,7 +174,7 @@ El sistema permite a los usuarios realizar pedidos desde la web, mientras que el
 
 ## Flujo general del sistema
 
-1. **El cliente realiza un pedido** desde la app Android o desde el panel web.
+1. **El cliente realiza un pedido** desde el panel web.
 2. **order-service** guarda el pedido y lo comunica a **kitchen-service**.
 3. La cocina actualiza el estado del pedido (“en cocina”, “listo”, etc.).
 4. **WebSocket** informa en tiempo real al cliente sobre el estado del pedido.
@@ -724,6 +713,8 @@ El sistema **Kizuna Gourmet** está compuesto por un conjunto de microservicios 
 La comunicación entre microservicios se realiza principalmente a través de **Feign Client** con resolución de rutas basada en **Eureka**, y todas las llamadas externas se canalizan mediante el **API Gateway** de Spring Cloud, que define rutas con el prefijo `/api/{servicio}/...`.
 
 A continuación se describe la estructura de cada microservicio, sus responsabilidades, endpoints principales, modelos clave y dependencias.
+
+![estructura](umls/msvc.png)
 
 ---
 
@@ -1286,6 +1277,14 @@ npm run serve
 ```
 
 Esto iniciará el servidor en `http://localhost:5173` (o el puerto que esté configurado en `vue.config.js`).
+
+Para iniciar sesión en la aplicación los usuarios son:
+
+- cliente1@gmail.com 
+- cook1@gmail.com
+- admin1@gmail.com
+
+Todos con contraseña: 12345
 
 > En esta versión, no se ha realizado despliegue en producción ni empaquetado con Docker. Para pruebas y desarrollo, `npm run serve` es suficiente.
 
