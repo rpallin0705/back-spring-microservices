@@ -39,24 +39,19 @@ services:
       - spring-cloud-network
     restart: on-failure
 
-#  auth-service:
-#    build:
-#      context: ./microservice-auth
-#    container_name: auth-service
-#    ports:
-#      - "8094:8094"
-#    environment:
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-#    networks:
-#      - spring-cloud-network
-#    depends_on:
-#      config-server:
-#        condition: service_started
-#      eureka-server:
-#        condition: service_healthy
-#      mysql:
-#        condition: service_started
-#    restart: on-failure
+  auth-service:
+    build:
+      context: ./microservice-auth
+    container_name: auth-service
+    depends_on:
+      eureka-server:
+        condition: service_started
+    ports:
+      - "8094:8094"
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
 
 networks:
   spring-cloud-network:
