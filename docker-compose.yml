@@ -78,6 +78,18 @@ services:
       - spring-cloud-network
     restart: on-failure
 
+  order-service:
+    build:
+      context: ./microservice-order
+    container_name: order-service
+    ports:
+      - "8091:8091"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
 
 networks:
   spring-cloud-network:
