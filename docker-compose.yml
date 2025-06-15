@@ -91,6 +91,19 @@ services:
       - spring-cloud-network
     restart: on-failure
 
+  kitchen-service:
+    build:
+      context: ./microservice-kitchen
+    container_name: kitchen-service
+    ports:
+      - "8093:8093"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - spring-cloud-network
+    restart: on-failure
+
 networks:
   spring-cloud-network:
     driver: bridge
